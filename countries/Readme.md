@@ -3,7 +3,9 @@ Different european countries
 
 This folder holds an overview for data sources, and some preliminary tests for each country.
 
-Main criteria are tests, reported cases, reported deaths, hospitalized, intensive care and mortality rate for each country.
+Main criteria are tests, reported cases, reported deaths, hospitalized, intensive care and mortality rate for each country. 
+
+There is a consideration for test in the testing folder.
 
 For now we looked at 
 Austria,
@@ -31,5 +33,4 @@ Sweden,
 Switzerland,
 United Kingdom.
 
-
-<?php insertTemplate("Sheet1.html") ?>
+[spreadsheet](https://docs.google.com/spreadsheets/d/1cnCfGEHqxvMDI2qFPkR3GEzeCTsNXJh_oHt2bi79xZg/edit#gid=0)
