@@ -33,4 +33,12 @@ Sweden,
 Switzerland,
 United Kingdom.
 
-[spreadsheet](https://docs.google.com/spreadsheets/d/1cnCfGEHqxvMDI2qFPkR3GEzeCTsNXJh_oHt2bi79xZg/edit#gid=0)
+We created a spreadsheet for the different data sources, it can be found
+[here](https://docs.google.com/spreadsheets/d/1cnCfGEHqxvMDI2qFPkR3GEzeCTsNXJh_oHt2bi79xZg/edit#gid=0).
+
+
+To run the ipython notebooks one has to install the Covid inference toolbox.
+`pip install git+https://github.com/Priesemann-Group/covid19_inference.git@v0.1.7`
+
+
+We use the stable version v0.1.7 for this!
