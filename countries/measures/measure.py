@@ -31,14 +31,18 @@ class Measure(object):
         # ------------------------------------------------------------------------------ #
         # Default parameters
         # ------------------------------------------------------------------------------ #
-        assert isinstance(begin, datetime.datetime), f"Please use datetime as begin"
-        assert isinstance(keyword, str), f"Keyword has to be string!"
+        assert isinstance(
+            begin, datetime.datetime
+        ), f"Please use datetime type as begin date! Not {type(begin)}"
+        assert isinstance(
+            keyword, dict
+        ), f"Keyword has to be a dict containing tag and description! Not {type(keyword)}"
         assert isinstance(
             additional_dates, (tuple, list, datetime.datetime, type(None))
-        ), f"TODO"
+        ), f"Additional dates have to be in a list or tuple format! Not {type(additional_dates)}"
         assert isinstance(
             end, (datetime.datetime, type(None))
-        ), f"Please use datetime as end"
+        ), f"Please use datetime type as end date! Not {type(end)}"
 
         # ------------------------------------------------------------------------------ #
         # Set attributes
