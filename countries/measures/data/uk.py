@@ -244,9 +244,9 @@ measures.append(Measure(keyword, begin))
 begin = datetime.datetime(2020, 5, 11)
 keyword = dict(
     tag="advice: wear masks in England",
-    description=""" The UK government advises people in England to wear face
+    description= The UK government advises people in England to wear face
                     coverings in enclosed spaces where social distancing is not
-                    possible, such as on public transport and in shops. """
+                    possible, such as on public transport and in shops. 
     )
 measures.append(Measure(keyword, begin))
 """
