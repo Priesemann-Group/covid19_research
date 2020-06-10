@@ -1,6 +1,6 @@
-""" # Measures for germany
+""" # Measures for the Netherlands
 
-We took at the different measures as can be seen on the [Wikipedia timeline](...) and ref....
+We look at the different measures as can be seen on the [Wikipedia timeline](...) and ref....
 """
 
 """ ## Imports
@@ -27,7 +27,7 @@ symptoms to stay home until they recover.
 """
 begin = datetime.datetime(2020, 3, 6)
 keyword = dict(
-    tag="Advised to stay home if cold-like symptoms",
+    tag=kw.stay_home_if_cough,
     description=""" On March 6 the RIVM advises people in Noord-Brabant who have cold-like
                     symptoms to stay home until they recover. """,
     )
@@ -52,7 +52,7 @@ March 10:
 """
 begin = datetime.datetime(2020, 3, 10)
 keyword = dict(
-    tag="travel restriction to italy",
+    tag=kw.restrict_travel_italy,
     description=""" The Dutch government changes its travel advice to Italy to code orange,
                     meaning essential travel only.""",
     )
@@ -75,7 +75,7 @@ keyword = dict(
     )
 measures.append(Measure(keyword, begin))
 keyword = dict(
-    tag="domestic football matches canceled",
+    tag = kw.cancel_football,
     description=""" The KNVB cancels all domestic football matches also sometimes quoted to start at
                     the 8 March"""
     )
@@ -105,7 +105,7 @@ keyword = dict(
     )
 measures.append(Measure(keyword, begin))
 keyword = dict(
-    tag=kw.keep_distance,
+    tag = kw.keep_distance,
     description=""" People are instructed to keep 1.5 metres apart at all times. """
     )
 measures.append(Measure(keyword, begin))
@@ -116,7 +116,7 @@ March 17:
 """
 begin = datetime.datetime(2020, 3, 17)
 keyword = dict(
-    tag="only essential travel",
+    tag=kw.only_essential_travel,
     description=""" The foreign affairs ministry changes travel advice for all countries to code
                     orange (essential journeys only) until April 6. EU member states agree to close
                     their external borders for 30 days. """
@@ -140,6 +140,7 @@ keyword = dict(
     )
 measures.append(Measure(keyword, begin))
 
+
 """
 March 23:
 """
@@ -149,6 +150,7 @@ keyword = dict(
     description=""" Groups of more than three people in public are banned and mayors are
                     given powers to clear public spaces. """)
 measures.append(Measure(keyword, begin))
+
 keyword = dict(
     tag=kw.close_shops,
     description=""" ‘Contact professions’ such as hairdressers, nail studios,
@@ -169,6 +171,8 @@ keyword = dict(
                     in The Hague and Utrech """
     )
 measures.append(Measure(keyword, begin))
+
+
 """
 May 11:
 """
