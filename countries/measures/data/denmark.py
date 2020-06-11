@@ -46,11 +46,11 @@ measures.append(Measure(keyword, begin))
 
 
 """
-March 13 (or 16):
+March 13:
 """
 begin = datetime.datetime(2020, 3, 13)
 keyword = dict(
-    tag=kw.close_schools,
+    tag="close secondary schools",
     description=""" Secondary schools shut and universities
                     (primary schools also shut on 16th)."""
     )
@@ -67,6 +67,18 @@ begin = datetime.datetime(2020, 3, 13)
 keyword = dict(
     tag=kw.keep_distance,
     description=""" recommend keeping appropriate distance """
+    )
+measures.append(Measure(keyword, begin))
+
+
+"""
+March 16:
+"""
+begin = datetime.datetime(2020, 3, 16)
+keyword = dict(
+    tag="close primary schools",
+    description=""" Secondary schools shut and universities
+                    (primary schools also shut on 16th)."""
     )
 measures.append(Measure(keyword, begin))
 
