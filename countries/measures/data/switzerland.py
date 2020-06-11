@@ -17,6 +17,7 @@ from measure import Measure  # Our Measure helper class
 """ ## Measures
 Sources are
 [wikipedia](https://en.wikipedia.org/wiki/COVID-19_pandemic_in_Switzerland)
+[Ferguson et al. March 2020](https://www.imperial.ac.uk/mrc-global-infectious-disease-analysis/covid-19/report-13-europe-npi-impact/)
 """
 
 """
@@ -30,10 +31,22 @@ keyword = dict(
 )
 measures.append(Measure(keyword, begin))
 
+
 """
-March 13:
+March 2:
 """
-begin = datetime.datetime(2020, 3, 13)
+begin = datetime.datetime(2020, 3, 2)
+keyword = dict(
+    tag=kw.stay_home_if_cough,
+    description=""" Advice to self-isolate if experiencing a cough or fever symptoms. """
+)
+measures.append(Measure(keyword, begin))
+
+
+"""
+March 14:
+"""
+begin = datetime.datetime(2020, 3, 14)
 keyword = dict(
     tag=kw.close_schools,
     description=""" The Federal Council decided to cancel classes in all educational

@@ -35,13 +35,13 @@ measures.append(Measure(keyword, begin))
 March 16:
 """
 begin = datetime.datetime(2020, 3, 16)
+
 keyword = dict(
     tag=kw.work_from_home,
     description=""" encouragement to work from home."""
     )
 measures.append(Measure(keyword, begin))
 
-begin = datetime.datetime(2020, 3, 16)
 keyword = dict(
     tag=kw.stay_home_if_cough,
     description=""" People even with mild symptoms are told to limit social contact."""
