@@ -2,15 +2,17 @@
 Script to plot the measures on a timescale 
 """
 
-from measure import get_measures,get_possible_countries
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import datetime
 import sys
 import numpy as np
+
 sys.path.append("../../covid19_inference-model_cleanup")
 from covid19_inference import plot as covplt
 
+from measure import get_measures,get_possible_countries
+import keywords as kw
 
 def plot_measure_onto_axes(ax,measure,**kwargs):
     """
@@ -37,7 +39,7 @@ countries = get_possible_countries()
 
 fig, axes = plt.subplots(1,1,figsize=(10,4))
 
-measures = get_measures(tag="lockdown")
+measures = get_measures(tag=kw.lockdown)
 for m, measure in enumerate(measures):
     plot_measure_onto_axes(axes, measure,lw=10,alpha=0.5)
     axes.set_title("Lockdown measures in different countries")

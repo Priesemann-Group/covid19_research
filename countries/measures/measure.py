@@ -56,6 +56,8 @@ class Measure(object):
 
         if end is None:
             self.end = datetime.datetime(2030, 1, 1)
+        else:
+            self.end = end
         self.additional_dates = additional_dates
         self.country= country
 
