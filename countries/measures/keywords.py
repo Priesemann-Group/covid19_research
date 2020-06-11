@@ -1,4 +1,5 @@
 # Sort alphabetically
+avoid_public_transport = "advice: avoid public transport"
 cancel_football = "domestic football matches canceled"
 case_based_isolation = "case based self-isolation mandated"
 close_hotels = "hotels not permitted for tourist stays"
@@ -15,3 +16,4 @@ only_essential_travel = "advice: only essential travel"
 stay_home_if_cough = "advice: stay home if cough or fever"
 restrict_travel_italy = "advice: restrict travel to Italy"
 restrict_visit_elders = "restrict visits to elderly homes and hospitals"
+work_from_home = "advice: work from home if possible"
