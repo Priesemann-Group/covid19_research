@@ -54,7 +54,7 @@ begin = datetime.datetime(2020, 3, 10)
 keyword = dict(
     tag=kw.restrict_travel_italy,
     description=""" The Dutch government changes its travel advice to Italy to code orange,
-                    meaning essential travel only.""",
+                    meaning essential travel only."""
     )
 measures.append(Measure(keyword, begin))
 
