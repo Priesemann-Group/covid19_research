@@ -18,7 +18,7 @@ from measure import Measure  # Our Measure helper class
 Sources are
 [wikipedia](https://en.wikipedia.org/wiki/COVID-19_pandemic_in_Switzerland)
 """
-
+measures=[]
 """
 February 28:
 """
