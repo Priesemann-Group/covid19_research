@@ -19,7 +19,7 @@ Sources are
 [wikipedia](https://en.wikipedia.org/wiki/COVID-19_pandemic_in_Switzerland)
 [Ferguson et al. March 2020](https://www.imperial.ac.uk/mrc-global-infectious-disease-analysis/covid-19/report-13-europe-npi-impact/)
 """
-
+measures=[]
 """
 February 28:
 """
