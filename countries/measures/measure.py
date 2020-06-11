@@ -4,6 +4,7 @@
 import datetime
 import keywords as kw
 import numpy as np
+import importlib
 
 class Measure(object):
     """
@@ -52,16 +53,18 @@ class Measure(object):
         # ------------------------------------------------------------------------------ #
         self.begin = begin
         self.keyword = keyword
-        self.end = end
+
+        if end is None:
+            self.end = datetime.datetime(2030, 1, 1)
         self.additional_dates = additional_dates
         self.country= country
 
     @property
     def tag(self):
-        return self.keyword.tag
+        return self.keyword["tag"]
     
-import importlib
-def get_measure(countries=None, tag=None, data_begin=None, data_end=None):
+
+def get_measures(countries=None, tag=None, data_begin=None, data_end=None):
     """
     Function that returns all measure of one or multiple countries, can be filtered by tag.
 
@@ -112,7 +115,7 @@ def get_measure(countries=None, tag=None, data_begin=None, data_end=None):
     # Filters
     # ------------------------------------------------------------------------------ #
 
-    # Get measures for filtered countries
+    # Retrieve measures for filtered countries
     filter_countries = []
     for country in countries:
         filter_countries.append(load_measures_from_file(country))
