@@ -25,7 +25,7 @@ Feb 28:
 begin = datetime.datetime(2020, 2, 28)
 keyword = dict(
     tag="cancel public events",
-    description="""  Seimas cancelled all public events on its premises until 30 April. """,
+    description=""" Seimas cancelled all public events on its premises until 30 April. """,
     reference="https://www.lrs.lt/sip/portal.show?p_r=35403&p_k=1&p_t=270150&p6=27"
     )
 measures.append(Measure(keyword, begin))
@@ -66,12 +66,12 @@ March 16:
 begin = datetime.datetime(2020, 3, 16)
 end = datetime.datetime(2020, 6, 17)
 
-description_march_16 = """ Lithuania was put under quarantine. All public indoor and outdoor gatherings were prohibited;
-                    all shops and businesses excluding grocery shops, pharmacies and veterinary pharmacies were closed;
-                    all restaurants and bars were closed, leaving the option for food take-away; borders were closed for
-                    foreigners regardless of the means of transport, excluding cargo and special transport;
-                    all international outbound passenger travel was prohibited.
-                    The quarantine was set to last until 30 March, but later revised to 17. Jun"""
+description_march_16 = """  Lithuania was put under quarantine. All public indoor and outdoor gatherings were prohibited;
+                            all shops and businesses excluding grocery shops, pharmacies and veterinary pharmacies were closed;
+                            all restaurants and bars were closed, leaving the option for food take-away; borders were closed for
+                            foreigners regardless of the means of transport, excluding cargo and special transport;
+                            all international outbound passenger travel was prohibited.
+                            The quarantine was set to last until 30 March, but later revised to 17. Jun"""
 
 references_march_16 = ["https://www.lrt.lt/naujienos/lietuvoje/2/1151427/skvernelis-pranese-kad-sestadieni-bus-priimtas-sprendimas-del-karantino-salies-mastu","https://www.lrt.lt/en/news-in-english/19/1187146/lithuania-decides-to-lift-quarantine"]
 keyword = dict(
