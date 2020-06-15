@@ -21,8 +21,8 @@ for key in icu:
     new_cases[key]=jhu.get_new(country=key.title(),data_begin=datetime.datetime(2020,3,1))
 
 # For some strange reason spain and portugal have faulty values
-new_cases["Spain"].drop(datetime.datetime(2020,4,24))
-new_cases["Portugal"].drop(datetime.datetime(2020,5,2))
+new_cases["Spain"] = new_cases["Spain"].drop(datetime.datetime(2020,4,24))
+new_cases["Portugal"] = new_cases["Portugal"].drop(datetime.datetime(2020,5,2))
 
 """ # Create an plot for each country
 
