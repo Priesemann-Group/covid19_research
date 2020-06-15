@@ -39,7 +39,7 @@ countries = get_possible_countries()
 
 fig, axes = plt.subplots(1,1,figsize=(10,4))
 
-measures = get_measures(tag=kw.lockdown)
+measures = get_measures(tag="lockdown")
 for m, measure in enumerate(measures):
     plot_measure_onto_axes(axes, measure,lw=10,alpha=0.5)
     axes.set_title("Lockdown measures in different countries")
