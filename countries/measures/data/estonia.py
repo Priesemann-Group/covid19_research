@@ -1,5 +1,4 @@
 """ # Measures for Estonia
-We look at the different measures as can be seen on
 """
 
 """ ## Imports
