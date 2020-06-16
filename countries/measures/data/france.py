@@ -17,6 +17,8 @@ from measure import Measure  # Our Measure helper class
 """ ## Measures
 Sources are
 [Ferguson et al. March 2020](https://www.imperial.ac.uk/mrc-global-infectious-disease-analysis/covid-19/report-13-europe-npi-impact/)
+[Wikipedia](https://en.wikipedia.org/wiki/COVID-19_pandemic_in_France#Lockdown)
+Personal following of press
 """
 measures = []  # Create empty array on which we append later on
 
@@ -32,12 +34,12 @@ measures.append(Measure(keyword, begin))
 
 
 """
-March 14:
+March 16:
 """
-begin = datetime.datetime(2020, 3, 14)
+begin = datetime.datetime(2020, 3, 16)
 keyword = dict(
     tag=kw.close_schools,
-    description=""" Nationwide school closures."""
+    description=""" Nationwide school closures became effectiv.""" # announced on saturday, 14/03
     )
 measures.append(Measure(keyword, begin))
 
