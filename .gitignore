@@ -2,3 +2,13 @@
 covid19_inference-master/
 .ipynb_checkpoints
 covid19_inference-model_cleanup/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+# Jupyter NB Checkpoints
+.ipynb_checkpoints/
+
+# Mypy cache
+.mypy_cache/

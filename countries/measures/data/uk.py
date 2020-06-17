@@ -1,6 +1,4 @@
 """ # Measures for the United Kingdom
-
-We look at the different measures as can be seen on the [Wikipedia timeline](...) and ref....
 """
 
 """ ## Imports
