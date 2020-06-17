@@ -1,4 +1,7 @@
 """ # Measures for Portugal
+The list might not be extensive enough yet. The wikipedia source is not good
+so one needs to go through all the government announcements. It is likely that
+measures like school closures were missed.
 """
 
 """ ## Imports
@@ -23,7 +26,7 @@ March 13:
 """
 begin = datetime.datetime(2020, 3, 13)
 keyword = dict(
-    tag=kw.forbid_assemblies_1000,
+    tag="forbid assemblies",
     description=""" The Portuguese government declared the highest level of
                     alert because of COVID-19 and said it would be maintained
                     until 9 April.[10] Portugal entered a Mitigation Phase as

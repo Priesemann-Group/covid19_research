@@ -1,6 +1,6 @@
 """ # Measures for Austria
-
-We look at the different measures as can be seen on
+This list is not extensive. Measures like shop closures etc are not recorded
+here yet.
 """
 
 """ ## Imports
@@ -28,7 +28,10 @@ keyword = dict(
     tag=kw.forbid_assemblies_all,
     description=""" Banning of gatherings of more than 5 people."""
     )
-measures.append(Measure(keyword, begin))
+measures.append(Measure(keyword, begin, end=datetime.datetime(2020, 5, 29)))
+# Replaced with banning assemblies over 100 people. See below.
+
+
 
 """
 March 14:
@@ -49,7 +52,7 @@ keyword = dict(
     description=""" Banning all access to public spaces and gatherings of more
                     than 5 people."""
     )
-measures.append(Measure(keyword, begin))
+measures.append(Measure(keyword, begin, end=datetime.datetime(2020, 5, 29)))
 
 begin = datetime.datetime(2020, 3, 16)
 keyword = dict(
@@ -64,3 +67,15 @@ keyword = dict(
     description=""" Implemented at lockdown."""
     )
 measures.append(Measure(keyword, begin))
+
+
+"""
+May 29:
+"""
+begin = datetime.datetime(2020, 5, 29)
+keyword = dict(
+    tag="forbid assemblies > 100",
+    description=""" Ab 29. Mai 2020 sind Veranstaltungen bis 100 Personen erlaubt.""",
+    references= "https://www.sozialministerium.at/Informationen-zum-Coronavirus/Coronavirus---Aktuelle-Ma%C3%9Fnahmen.html"
+    ) #There are even more easing of measures in the reference.
+measures.append(Measure(keyword, begin, end=datetime.datetime(2020, 7, 1)))
