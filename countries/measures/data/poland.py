@@ -80,7 +80,8 @@ begin = datetime.datetime(2020, 3, 15)
 keyword = dict(
     tag="border closed",
     description=""" the borders would remain "closed" until 3 May""",
-    references = "https://www.gov.pl/web/qatar/polands-borders-closed-from-15-march-due-to-coronavirus"   )
+    references = "https://www.gov.pl/web/qatar/polands-borders-closed-from-15-march-due-to-coronavirus"  
+    )
 measures.append(Measure(keyword, begin, end=datetime.datetime(2020,5,1)))
 
 
