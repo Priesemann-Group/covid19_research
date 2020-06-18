@@ -1,4 +1,5 @@
 """ # Measures for Greece
+Reopening might still be missing
 """
 
 """ ## Imports
