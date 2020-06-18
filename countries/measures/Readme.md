@@ -12,23 +12,22 @@ Optional are
 * end date
 * more dates (on/off measure)
 
+The keyword attribute of the measure consists of `tags`,`description` and links
+to `references`, whereby `description` and `references` are optional.
+
 For more information see file `measure.py`.
 
 ## Design choices
-We create a file for each country in the data folder!  (i.e. germany.py)
-This file holds the data for all the measures a country had (see data for each measure above)
+We create a file for each country in the data folder!  (e.g. italy.py)
+These files hold the governmental measures for each country.
 At the end of these files an array with measures `measures` should be created!
 
 There is a getter function (with filters i.e. country, date, keywords) in the separate file `measure.py`.
 
-## Measure keywords
-Most frequently used keywords can be obtained by importing the keywords module.
+## Measures
+Most frequently used tags can be obtained by importing the keywords module.
 ```
 import keywords as kw
 ```
-This module houses a number of keywords in its namespace.
-
-# QUESTIONS
-
-What happens if measures were taken on a smaller local scale? (i.e. bundesländer)
+This module houses a number of tags in its namespace.
 
