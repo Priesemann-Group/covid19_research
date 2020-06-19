@@ -1,6 +1,6 @@
 """ # Measures for Norway
 
-We look at the different measures as can be seen on
+TODO: Add reopening
 """
 
 """ ## Imports

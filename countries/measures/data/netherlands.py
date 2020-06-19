@@ -1,6 +1,6 @@
 """ # Measures for the Netherlands
 
-We look at the different measures as can be seen on the [Wikipedia timeline](...) and ref....
+TODO: Add reopening
 """
 
 """ ## Imports
