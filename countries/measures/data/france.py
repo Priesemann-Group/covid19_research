@@ -29,7 +29,7 @@ begin = datetime.datetime(2020, 2, 29)  # according to Wikipedia
 keyword = dict(
     tag="forbid assemblies > 5000",
     description=""" ban on gatherings of more than 5000 people in confined spaces.""",
-    references="https://www.gouvernement.fr/info-coronavirus/les-actions-du-gouvernement"
+    references="https://www.gouvernement.fr/info-coronavirus/les-actions-du-gouvernement",
 )
 measures.append(Measure(keyword, begin))
 
@@ -39,7 +39,7 @@ March 10:
 begin = datetime.datetime(2020, 3, 10)  # according to Wikipedia
 keyword = dict(
     tag="forbid assemblies > 1000",
-    description=""" Bans of events >1000 people."""
+    description=""" Bans of events >1000 people.""",  # actually political assemblies of up to 5000 persons are allowed again
 )
 measures.append(Measure(keyword, begin))
 
@@ -53,16 +53,37 @@ keyword = dict(
 measures.append(Measure(keyword, begin))
 
 """
+March 15:
+"""
+begin = datetime.datetime(2020, 3, 15)
+keyword = dict(tag=kw.close_shops, description=""" Non essential shops closed.""")
+measures.append(Measure(keyword, begin))
+begin = datetime.datetime(2020, 3, 15)
+keyword = dict(tag=kw.close_res_bars, description=""" Restaurants and bars closed.""")
+measures.append(Measure(keyword, begin))
+begin = datetime.datetime(2020, 3, 15)
+keyword = dict(tag=kw.close_shops, description=""" Non essential shops closed.""")
+measures.append(Measure(keyword, begin))
+
+"""
 March 16:
 """
 begin = datetime.datetime(2020, 3, 16)
 keyword = dict(
     tag=kw.close_schools,
-    description=""" Nationwide school closures became effective, including universities.""",  # announced on saturday, 14/03, falls essentially together with closure of non-essential services, effective one day earlier
-    references="https://www.gouvernement.fr/info-coronavirus/les-actions-du-gouvernement"
+    description=""" Nationwide school closures became effective.""",  # announced on saturday, 14/03
+    references="https://www.gouvernement.fr/info-coronavirus/les-actions-du-gouvernement",
 )
-measures.append(Measure(keyword, begin, end=datetime.datetime(2020, 5, 11))) # Ended gradually
-
+measures.append(
+    Measure(keyword, begin, end=datetime.datetime(2020, 5, 11))
+)  # Ended gradually
+begin = datetime.datetime(2020, 3, 16)
+keyword = dict(
+    tag=kw.close_universities,
+    description=""" Nationwide university closures became effective.""",  # announced on saturday, 14/03
+    references="https://www.gouvernement.fr/info-coronavirus/les-actions-du-gouvernement",
+)
+measures.append(Measure(keyword, begin))
 
 """
 March 17:
@@ -72,7 +93,7 @@ keyword = dict(
     tag=kw.lockdown,
     description=""" Everybody has to stay at home. Need a selfauthorisation
                     form to leave home. """,
-    references="https://www.gouvernement.fr/info-coronavirus/les-actions-du-gouvernement"
+    references="https://www.gouvernement.fr/info-coronavirus/les-actions-du-gouvernement",
 )
 measures.append(Measure(keyword, begin, end=datetime.datetime(2020, 5, 11)))
 
@@ -80,6 +101,8 @@ keyword = dict(
     tag="no travel / close borders",
     description=""" restriction of travel to the strict minimum in the European Union;
                     closing the borders of the Schengen area; """,
-    references="https://www.gouvernement.fr/info-coronavirus/les-actions-du-gouvernement"
+    references="https://www.gouvernement.fr/info-coronavirus/les-actions-du-gouvernement",
 )
-measures.append(Measure(keyword, begin, end=datetime.datetime(2020, 5, 11)))
+measures.append(
+    Measure(keyword, begin, end=datetime.datetime(2020, 6, 15))
+)  # end date = end of necessity of special conditions to enter France (citizenship, residency, transit, ...)
