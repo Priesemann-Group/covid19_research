@@ -1,6 +1,7 @@
-""" # Measures for Belgium
-
-We look at the different measures as can be seen on
+""" # Measures for Spain
+Look into these official sources for reopening:
+* https://www.boe.es/eli/es/o/2020/05/16/snd414/con
+* https://www.boe.es/eli/es/o/2020/05/30/snd458
 """
 
 """ ## Imports
