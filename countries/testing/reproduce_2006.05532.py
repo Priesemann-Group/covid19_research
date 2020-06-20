@@ -61,13 +61,13 @@ for country in countries:
         x=total_tests_daily.index,
         y=total_tests_daily,
         ax=axes[0],
-        color=clr_right,
+        color=clr_left,
         what="model")
     cov19.plot._timeseries(
         x=total_pos_daily.index,
         y=total_pos_daily,
         ax=ax2,
-        color=clr_left,
+        color=clr_right,
         what="model")
 
     # Colored ticks
