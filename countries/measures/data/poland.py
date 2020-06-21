@@ -147,7 +147,7 @@ keyword = dict(
                     leaving their homes unaccompanied by a legal guardian.
                     Reopen: Important! From May 18, children under the age of 13
                     will be able to leave the house without an adult guardian!""",
-    references = "https://web.archive.org/web/20200402023522/http://prawo.sejm.gov.pl/isap.nsf/download.xsp/WDU20200000566/O/D20200566.pdf",
+    references = ["https://web.archive.org/web/20200402023522/http://prawo.sejm.gov.pl/isap.nsf/download.xsp/WDU20200000566/O/D20200566.pdf",
                   "https://www.gov.pl/web/koronawirus/3etap"
                   ]
     )

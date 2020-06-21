@@ -86,7 +86,7 @@ measures.append(Measure(keyword, begin, end=datetime.datetime(2020, 5, 11)))
 begin = datetime.datetime(2020, 3, 14)
 keyword = dict(
     tag=kw.close_theaters_cinema,
-    description=""" all public places e.g. restaurants closed """
+    description=""" all public places e.g. restaurants closed """,
     references="https://www.info-coronavirus.be/en/news/nsc-0306/"
     )
 measures.append(Measure(keyword, begin, end=datetime.datetime(2020, 7, 1)))
