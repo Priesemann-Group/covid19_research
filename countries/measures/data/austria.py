@@ -1,6 +1,7 @@
 """ # Measures for Austria
 This list is not extensive. Measures like shop closures etc are not recorded
 here yet.
+TODO: Double check every measure.
 """
 
 """ ## Imports
@@ -17,8 +18,19 @@ from measure import Measure  # Our Measure helper class
 """ ## Measures
 Sources are
 [Ferguson et al. March 2020](https://www.imperial.ac.uk/mrc-global-infectious-disease-analysis/covid-19/report-13-europe-npi-impact/)
+[Hale et al. 2020](https://github.com/OxCGRT/covid-policy-tracker)
 """
 measures = []  # Create empty array on which we append later on
+
+"""
+March 9:
+"""
+begin = datetime.datetime(2020, 3, 9)
+keyword = dict(
+    tag=kw.travel_control,
+    description=""" From github. """
+    )
+measures.append(Measure(keyword, begin))
 
 """
 March 10:
