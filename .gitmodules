@@ -1,0 +1,8 @@
+[submodule "toolbox/v0.1.8"]
+	path = toolbox/v0.1.8
+	url = git@github.com:Priesemann-Group/covid19_inference.git
+	branch = v0.1.8
+[submodule "toolbox/master"]
+	path = toolbox/master
+	url = git@github.com:Priesemann-Group/covid19_inference.git
+	branch = master

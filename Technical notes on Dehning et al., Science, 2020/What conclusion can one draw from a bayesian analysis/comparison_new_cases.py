@@ -12,10 +12,12 @@ import datetime
 import pandas as pd
 
 try:
+    sys.path.append("../../toolbox/v0.1.8")
     import covid19_inference as cov19
 except ModuleNotFoundError:
     print(
-        "Install covid toolbox v0.1.8 'pip install git+https://github.com/Priesemann-Group/covid19_inference.git@v0.1.8'"
+        """"Could not import the covid19_inference toolbox make sure to have github submodules enabled \n
+        or install via pip"""
     )
 
 
