@@ -6,6 +6,11 @@ Collection of jupyter notebooks and python scripts related to COVID-19 research.
 This git repository uses submodules to link to different versions of our [toolbox](https://github.com/Priesemann-Group/covid19_inference). They can be easily imported without haveing to be installed via pip.
 
 
+Clone with the submodules:
+```
+git clone --recurse-submodules --remote-submodules git@github.com:Priesemann-Group/covid19_research.git
+```
+
 Import python module:
 ``` python
 import sys
