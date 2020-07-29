@@ -40,10 +40,14 @@ def get_R_t(times, R_0, cps):
 
 if __name__ == "__main__":
 
-    fig, ax = plt.subplots(2, 1, figsize=(6, 3), constrained_layout=True)
+    fig, ax = plt.subplots(2, 1, figsize=(4, 3), constrained_layout=True)
 
-    cp1 = Change_point(0.1, 0.5, 5, 8)
-    cp2 = Change_point(0.2, 1, 2, 15)
+    cp1_1 = Change_point(0.1, 0.5, 5, 8)
+    cp1_2 = Change_point(0.2, -0.5, 2, 15)
+    cp2 = Change_point(0.2, 1, 2, 10)
+
+    gamma_1 = lambda t: cp1_1.get_gamma(t) + cp1_2.get_gamma(t)
+    gamma_2 = lambda t: cp2.get_gamma(t)
 
     times = np.linspace(0, 24, 5000)  # 20 days
 
@@ -53,26 +57,20 @@ if __name__ == "__main__":
         - the second one for R
     """
 
-    # gamma cp 1
+    # gamma for the first intervention
     ax[0].plot(
-        times,
-        cp1.get_gamma(times),
-        color="tab:orange",
-        label=r"$\gamma_{1,max}=0.5$, $l_1=5$, $d_1=8$",
+        times, gamma_1(times), color="tab:orange", label=r"$\gamma_1(t)$",
     )
 
-    # gamma cp 2
+    # gamma for second intervention
     ax[0].plot(
-        times,
-        cp2.get_gamma(times),
-        color="tab:blue",
-        label=r"$\gamma_{2,max}=1.0$, $l_2=2$, $d_2=15$",
+        times, gamma_2(times), color="tab:blue", label=r"$\gamma_2(t)$",
     )
 
     # Plot R(t)
     ax[1].plot(
         times,
-        get_R_t(times, 2, [cp1, cp2]),
+        get_R_t(times, 1.2, [cp1_1, cp1_2, cp2]),
         color="tab:green",
         label=r"$R^*_{eff}(t)$",
     )
@@ -81,12 +79,18 @@ if __name__ == "__main__":
         axis.spines["right"].set_visible(False)
         axis.spines["top"].set_visible(False)
 
+    # Add letters
+    letter_kwargs = dict(x=-0.15, y=1.2, fontweight="bold", size="large")
+    ax[0].text(s="A", transform=ax[0].transAxes, **letter_kwargs)
+    ax[1].text(s="B", transform=ax[1].transAxes, **letter_kwargs)
     ax[0].set_xlim(0)
     ax[1].set_xlim(0)
     ax[0].set_ylabel(r"$\gamma(t)$")
     ax[1].set_ylabel(r"$R^*_{eff}(t)$")
-    ax[1].set_xlabel(r"$t$ in days")
+    ax[1].set_xlabel(r"Time $t$ (days)")
+    ax[1].axhline(1, ls=":", color="tab:gray")
     ax[0].tick_params(labelbottom=False)
     ax[0].legend(loc=2)
+
     save_kwargs = dict(transparent=True, format="pdf", dpi=300)
-    fig.savefig("figures/example_interventions.pdf", **save_kwargs)
+    fig.savefig("figures/interventions_example.pdf", **save_kwargs)
