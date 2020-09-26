@@ -1,17 +1,12 @@
 #!/usr/bin/env python3.7
 #coding:utf-8
 
-import datetime
-import time
-import pickle
-import os
-
-from zeep import Client
-from lxml import etree
-
-from Landkreise import Landkreise
-
-
+# ------------------------------------------------------------------------------ #
+# @Author:        Matthias Linden
+# @Email:         matthias.linden@ds.mpg.de
+# @Created:       2020-09-25 
+# @Last Modified: 2020-09-26 
+# ------------------------------------------------------------------------------ #
 # Tools to crawl  https://survstat.rki.de/Content/Query/Select.aspx
 # the Website allows queries for Covid19 cases with:
 #   - 1-year age stratification of cases
@@ -19,6 +14,24 @@ from Landkreise import Landkreise
 #   - by definition (lab,clinical,epi)
 #   - federal / state / county
 #   - weekly resolution
+# 
+# Inspiration taken from https://twitter.com/StefFun/status/1309223050718711814
+# Thanks to @risklayer for publishing Landkreise meta-data
+# ------------------------------------------------------------------------------ #
+
+
+import datetime
+import time
+import pickle
+import os
+
+#import xarray as xr
+
+from zeep import Client
+from lxml import etree
+
+from Landkreise import Landkreise
+
 
 # XML is the devil. This is what the components of the request should look like
 """ -- FilterCollection --
@@ -80,11 +93,11 @@ def Request(client):
     factory = client.type_factory('ns2')
     
     f1 = { "Key":{"HierarchyId":"[PathogenOut].[KategorieNz].[Krankheit DE]","DimensionId":"[PathogenOut].[KategorieNz]"},"Value":factory.FilterMemberCollection( ["[PathogenOut].[KategorieNz].[Krankheit DE].&[COVID-19]"] ) }
-    f2 = {"Key":{"HierarchyId":"[Falldefinition].[ID]","DimensionId":"[Falldefinition].[ID]"},"Value":factory.FilterMemberCollection(["[Falldefinition].[ID].&[3]"])}
+    f2 = { "Key":{"HierarchyId":"[Falldefinition].[ID]","DimensionId":"[Falldefinition].[ID]"},"Value":factory.FilterMemberCollection(["[Falldefinition].[ID].&[3]"]) }
     f3 = { "Key":{"HierarchyId":"[DeutschlandNodes].[Kreise71Web].[FedStateKey71]","DimensionId":"[DeutschlandNodes].[Kreise71Web]"},"Value":factory.FilterMemberCollection( ["[DeutschlandNodes].[Kreise71Web].[FedStateKey71].&[03].&[DE92].&[03241]"] ) }
     f4 = { "Key":{"HierarchyId":"[Geschlecht].[SortGruppe]","DimensionId":"[Geschlecht]"},"Value":factory.FilterMemberCollection( ["[Geschlecht].[SortGruppe].&[1]"] ) }
-    filters = factory.FilterCollection([f1,f2,f3,f4])
-
+    f5 = { "Key":{"HierarchyId":"[ReportingDate].[WeekYear]","DimensionId":"[ReportingDate]"},"Value":factory.FilterMemberCollection( ["[ReportingDate].[WeekYear].&[2020]"] ) }
+    filters = factory.FilterCollection([f1,f2,f3,f4,f5])
     
     request = {}
     request["Cube"] = "SurvStat"
@@ -93,9 +106,9 @@ def Request(client):
 
     request["RowHierarchy"] = "[ReportingDate].[YearWeek].[YearWeek]"
     request["IncludeNullColumns"] = True
-    request["InculdeTotalColumn"] = True
-    request["IncludeNullRows"] = False
-    request["InculdeTotalRow"] = True
+    request["InculdeTotalColumn"] = False
+    request["IncludeNullRows"] = True
+    request["InculdeTotalRow"] = False
     
     request["HierarchyFilters"] = filters
     
@@ -106,7 +119,10 @@ def Request(client):
     
     response = client.service.GetOlapData(request)
     return response
- 
+
+class Crawler(object):
+    def __init__(self):
+        pass
 
 
 if __name__=="__main__":
