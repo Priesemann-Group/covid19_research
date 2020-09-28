@@ -129,6 +129,7 @@ class Crawler(object):
         self.lks = Landkreise()
         
         self.client = Client("https://tools.rki.de/SurvStat/SurvStatWebService.svc?singleWsdl")
+#        self.client = AsyncClient("https://tools.rki.de/SurvStat/SurvStatWebService.svc?singleWsdl")
         self.client_factory = self.client.type_factory('ns2')
         
         self.debug = False
@@ -179,7 +180,7 @@ class Crawler(object):
         self.filter_values["pathogen"] = {"COVID-19":"[PathogenOut].[KategorieNz].[Krankheit DE].&[COVID-19]"}
         self.filters["pathogen"] = {"default":"[PathogenOut].[KategorieNz].[Krankheit DE]"}
        
-    def Request(self,hierarchy,values):
+    def Request(self,hierarchy,values,rid):
         cf = self.client_factory
         
         f = []
@@ -208,7 +209,10 @@ class Crawler(object):
         t1 = time.time()
         response = self.client.service.GetOlapData(request)
         t2 = time.time()
-        print("in %.4fs"%(t2-t1))
+        print("ID %d in %.4fs"%(rid,t2-t1))
+        
+        return response
+        
 #        print(response)
         
 #        print(f)
@@ -263,8 +267,10 @@ class LK_Crawler(Crawler):
     
     def AsyncRequest(self,filters):
         t1 = time.time()
-        for hierarchy,values in zip(filters["hierarchy"],filters["values"]):
-            self.Request(hierarchy,values)
+        
+        task = []
+        for rid,hierarchy,values in zip(range(len(filters["hierarchy"])),filters["hierarchy"],filters["values"]):
+            task.append(self.Request(hierarchy,values,rid))
 #            print(hierarchy,value)
         
         t2 = time.time()
