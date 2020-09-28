@@ -17,6 +17,10 @@
 # 
 # Inspiration taken from https://twitter.com/StefFun/status/1309223050718711814
 # Thanks to @risklayer for publishing Landkreise meta-data
+#
+# Make sure to use
+# pip-3.7 install --upgrade  git+git://github.com/mvantellingen/python-zeep
+# for async
 # ------------------------------------------------------------------------------ #
 
 
@@ -27,7 +31,10 @@ import os
 
 #import xarray as xr
 
-from zeep import Client
+import httpx
+import asyncio
+from zeep import AsyncClient,Client
+from zeep.transports import AsyncTransport
 from lxml import etree
 
 from Landkreise import Landkreise
@@ -124,12 +131,16 @@ def Request(client):
 # Now the serious stuff:
 
 class Crawler(object):
-    def __init__(self):
+    def __init__(self,use_async=True):
         self._InitFilters()
         self.lks = Landkreise()
         
-        self.client = Client("https://tools.rki.de/SurvStat/SurvStatWebService.svc?singleWsdl")
-#        self.client = AsyncClient("https://tools.rki.de/SurvStat/SurvStatWebService.svc?singleWsdl")
+        self.use_async = use_async
+        if use_async:
+            self.client = AsyncClient("https://tools.rki.de/SurvStat/SurvStatWebService.svc?singleWsdl")
+        else:
+            self.client = Client("https://tools.rki.de/SurvStat/SurvStatWebService.svc?singleWsdl")
+            
         self.client_factory = self.client.type_factory('ns2')
         
         self.debug = False
@@ -202,12 +213,14 @@ class Crawler(object):
         request["IncludeNullRows"] = False
         request["InculdeTotalRow"] = False
         
-        if self.debug:
-            node = self.client.create_message(self.client.service,'GetOlapData',request) 
-            print( etree.tostring(node,pretty_print=True).decode() )
+        #if self.debug:
+        node = self.client.create_message(self.client.service,'GetOlapData',request) 
+        #    print( etree.tostring(node,pretty_print=True).decode() )
         
         t1 = time.time()
         response = self.client.service.GetOlapData(request)
+ #       response = self.client.service.request(node)
+        
         t2 = time.time()
         print("ID %d in %.4fs"%(rid,t2-t1))
         
@@ -232,7 +245,7 @@ class LK_Crawler(Crawler):
         
         
         if not use_backup or not self.HasBackup():
-            self.Crawl()
+           self.Crawl()
     
     def HasBackup(self):
         return False
@@ -268,13 +281,29 @@ class LK_Crawler(Crawler):
     def AsyncRequest(self,filters):
         t1 = time.time()
         
-        task = []
+        if self.use_async:
+            loop = asyncio.get_event_loop()
+            
+        
+        tasks = []
         for rid,hierarchy,values in zip(range(len(filters["hierarchy"])),filters["hierarchy"],filters["values"]):
-            task.append(self.Request(hierarchy,values,rid))
-#            print(hierarchy,value)
+            tasks.append(self.Request(hierarchy,values,rid))
+        
+        if self.use_async:
+            future = asyncio.gather(*tasks, return_exceptions=True)
+            
+            def handle_future(future):
+                print(future.result())
+                return future.result()
+            future.add_done_callback(handle_future)
+        
+            loop.run_until_complete(future)
+            loop.run_until_complete(self.client.transport.aclose())
         
         t2 = time.time()
         print("in %.4fs"%(t2-t1))
+        
+        return future
         
     def Crawl(self):
         # Prepare the filters to grab all definitions for all sexes
