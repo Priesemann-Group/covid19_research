@@ -28,6 +28,7 @@ import datetime
 import time
 import pickle
 import os
+import functools
 
 #import xarray as xr
 
@@ -36,6 +37,9 @@ import asyncio
 from zeep import AsyncClient,Client
 from zeep.transports import AsyncTransport
 from lxml import etree
+
+import numpy as np
+from scipy import sparse
 
 from Landkreise import Landkreise
 
@@ -204,8 +208,8 @@ class Crawler(object):
         request["HierarchyFilters"] = filters
         
         request["Cube"] = "SurvStat"
-        #    request["ColumnHierarchy"] = "[AlterPerson80].[AgeGroupName8]"
-        request["ColumnHierarchy"] = "[AlterPerson80].[AgeGroupName6]"
+        request["ColumnHierarchy"] = "[AlterPerson80].[AgeGroupName8]"
+        #request["ColumnHierarchy"] = "[AlterPerson80].[AgeGroupName6]"
 
         request["RowHierarchy"] = "[ReportingDate].[YearWeek].[YearWeek]"
         request["IncludeNullColumns"] = True
@@ -213,39 +217,26 @@ class Crawler(object):
         request["IncludeNullRows"] = False
         request["InculdeTotalRow"] = False
         
-        #if self.debug:
-        node = self.client.create_message(self.client.service,'GetOlapData',request) 
-        #    print( etree.tostring(node,pretty_print=True).decode() )
+        if self.debug:
+            node = self.client.create_message(self.client.service,'GetOlapData',request) 
+            print( etree.tostring(node,pretty_print=True).decode() )
         
-        t1 = time.time()
+    #    t1 = time.time()
         response = self.client.service.GetOlapData(request)
- #       response = self.client.service.request(node)
         
-        t2 = time.time()
-        print("ID %d in %.4fs"%(rid,t2-t1))
+     #   t2 = time.time()
+    #    print("ID %d in %.4fs"%(rid,t2-t1))
         
         return response
-        
-#        print(response)
-        
-#        print(f)
-   #     rfilters = []
-    #    for k,v in filters:
-      #      
-       #     print(short_key)
-      #      f = { "Key":{"HierarchyId":"[PathogenOut].[KategorieNz].[Krankheit DE]","DimensionId":"[PathogenOut].[KategorieNz]"},"Value":factory.FilterMemberCollection( ["[PathogenOut].[KategorieNz].[Krankheit DE].&[COVID-19]"] ) }
-       #     rfilters.append(f)
-        
-    #    for x in rfilters:
-     #       print(x)
         
 class LK_Crawler(Crawler):
     def __init__(self,use_backup=False):
         super(LK_Crawler,self).__init__()
         
+        self.lks_by_year = {}
         
         if not use_backup or not self.HasBackup():
-           self.Crawl()
+           self.AsyncCrawl()
     
     def HasBackup(self):
         return False
@@ -260,56 +251,47 @@ class LK_Crawler(Crawler):
         
         if len(keys) > 1:
             r = self.PermutateFilters(cfilters)
-            rhierarchy,rnames,rvalues = r["hierarchy"].copy(),r["names"].copy(),r["values"].copy()
+            rhierarchy,rnames,rvalues,rindex = r["hierarchy"].copy(),r["names"].copy(),r["values"].copy(),r["indices"].copy()
             
-            lfilters,lnames,lhierarchy = [],[],[]
-            for k,v in cfilter["values"].items():
-                for rh,rn,rv in zip(rhierarchy,rnames,rvalues):
+            lfilters,lnames,lhierarchy,lindex = [],[],[],[]
+            for i,k in enumerate(cfilter["values"].keys()):
+                v = cfilter["values"][k]
+                for rh,rn,rv,ri in zip(rhierarchy,rnames,rvalues,rindex):
                     lhierarchy.append([cfilter["hierarchy"]]+rh)
                     lnames.append([k]+rn)
                     lfilters.append([v]+rv)
+                    lindex.append([i]+ri)
                 
-            return {"hierarchy":lhierarchy,"names":lnames,"values":lfilters,"groups":[ckey]+r["groups"]}
+            return {"hierarchy":lhierarchy,"names":lnames,"values":lfilters,"groups":[ckey]+r["groups"],"indices":lindex}
             
         else:
-            rfilters,rnames,rhierarchy = [],[],[]
-            for k,v in cfilter["values"].items():
+            rfilters,rnames,rhierarchy,rindex = [],[],[],[]
+            for i,k in enumerate(cfilter["values"].keys()):
+                v = cfilter["values"][k]
                 rfilters.append([v]),rnames.append([k])
                 rhierarchy.append([cfilter["hierarchy"]])
-            return {"hierarchy":rhierarchy,"names":rnames,"values":rfilters,"groups":[ckey]}
+                rindex.append(i)
+            return {"hierarchy":rhierarchy,"names":rnames,"values":rfilters,"groups":[ckey],"indices":[rindex]}
     
     def AsyncRequest(self,filters):
+        """ Issues a request for each of the filters and return the future collection of results """
         t1 = time.time()
-        
-        if self.use_async:
-            loop = asyncio.get_event_loop()
-            
         
         tasks = []
         for rid,hierarchy,values in zip(range(len(filters["hierarchy"])),filters["hierarchy"],filters["values"]):
             tasks.append(self.Request(hierarchy,values,rid))
-        
-        if self.use_async:
-            future = asyncio.gather(*tasks, return_exceptions=True)
+        future = asyncio.gather(*tasks, return_exceptions=True)
             
-            def handle_future(future):
-                print(future.result())
-                return future.result()
-            future.add_done_callback(handle_future)
-        
-            loop.run_until_complete(future)
-            loop.run_until_complete(self.client.transport.aclose())
-        
         t2 = time.time()
-        print("in %.4fs"%(t2-t1))
+      #  print("in %.4fs"%(t2-t1))
         
         return future
         
-    def Crawl(self):
+    def PrepareFilters(self,year=2020):
         # Prepare the filters to grab all definitions for all sexes
         filters = {}
         filters["pathogen"] = {"hierarchy":self.filters["pathogen"]["default"],"values":self.filter_values["pathogen"]}
-        filters["year"] = {"hierarchy":"[ReportingDate].[WeekYear]","values":{2020:"[ReportingDate].[WeekYear].&[2020]"}}
+        filters["year"] = {"hierarchy":"[ReportingDate].[WeekYear]","values":{year:"[ReportingDate].[WeekYear].&[%d]"%year}}
         for k in ["sex","clinical_def"]:
             fkey = self.filters[k]["default"]
             gvalues = self.filter_values[k].copy()
@@ -319,17 +301,162 @@ class LK_Crawler(Crawler):
         for k,v in filters.items():
             print(k,v)
         
-#        for lk in in self.lks.GetLandkreisIDs():
-        for lk in [x for x in self.lks.GetLandkreisIDs()][:1]:
+        if year not in self.lks_by_year.keys():
+            self.lks_by_year[year] = {}
+        
+        return filters
+        
+        """    def ProcessResults(self,lk,results,filters):
+        t1 = time.time()
+        t0,results,pfilters = results
+        indices = pfilters["indices"]
+        groups = pfilters["groups"]
+        
+        nsex = len(filters["sex"]["values"])
+        isex = groups.index("sex")
+        nclinical_def = len(filters["clinical_def"]["values"])
+        iclinical_def = groups.index("clinical_def")
+        
+        year = list(filters["year"]["values"].keys())[0]
+#        print(nsex,nclinical_def,year)
+ #       print("index",isex,iclinical_def,groups)
+        
+        # Dimensions (lk), week, sex , clinical_def, age
+        a = np.zeros((54,nsex,nclinical_def,83,),dtype=int)
+        
+        for i,result in enumerate(results):
+            t2 = time.time()
+            index = indices[i]
+            csex,cclinical_def = index[isex],index[iclinical_def]
+            
+            qrows = result["QueryResults"]
+            if qrows != None:
+                rows = qrows["QueryResultRow"]
+                for row in rows:
+                    y,w = map(int,row["Caption"].split("-w"))
+                    
+                    # total,0,1,...,80,80+
+                    values = [x if x is not None else 0 for x in row["Values"]["string"]]
+                    ivalues = np.array(values).astype(np.int32)
+                    a[w,csex,cclinical_def] = ivalues
+                    
+            t3 = time.time()
+     #       print(i,"parsed in %.5f"%(t3-t2))
+        
+        print(lk,len(results),"%d nonzero total %.4fs process %.4fs"%(np.count_nonzero(a),time.time()-t0,t3-t1))
+        self.lks_by_year[year][lk] = (a, filters, pfilters,)"""
+
+    def ProcessResults(self,lk,results,filters):
+        t1 = time.time()
+        t0,results,pfilters = results
+        indices = pfilters["indices"]
+        groups = pfilters["groups"]
+        
+        nsex = len(filters["sex"]["values"])
+        isex = groups.index("sex")
+        nclinical_def = len(filters["clinical_def"]["values"])
+        iclinical_def = groups.index("clinical_def")
+        
+        year = list(filters["year"]["values"].keys())[0]
+
+        a = {}
+        for i,result in enumerate(results):
+            try:
+                t2 = time.time()
+                index = indices[i]
+                csex,cclinical_def = index[isex],index[iclinical_def]
+                
+                names = pfilters["names"][i]
+                ksex,kclinical_def = names[isex],names[iclinical_def]
+                
+                qrows = result["QueryResults"]
+                if qrows != None:
+                    rows = qrows["QueryResultRow"]
+                    for row in rows:
+                        y,w = map(int,row["Caption"].split("-w"))
+                        
+                        counts = {}
+                        for k,v in zip(["total"]+[x for x in range(81)]+["80+"],row["Values"]["string"]):
+                            if v != None:
+                                counts[k] = int(v)
+                                
+                        if len(counts) > 0:
+                            b = a.get(kclinical_def,{})
+                            a[kclinical_def] = b
+                            c = b.get(ksex,{})
+                            b[ksex] = c
+                            c[w] = counts
+            except:
+                print(results)
+                        
+        self.lks_by_year[year][lk] = a
+    
+    def AsyncCrawl(self):
+        """ Crawl all LKs using the full set of filters """
+        t1 = time.time()
+        filters = self.PrepareFilters()
+        
+        loop = asyncio.get_event_loop()
+        next_result = {}
+        
+        def handle_future(t0,lk,pfilters,future):
+            next_result[lk] = (t0,future.result(),pfilters)
+            return future
+        
+#        for lk in self.lks.GetLandkreisIDs():
+        lks = [x for x in self.lks.GetLandkreisIDs()]
+        for j,lk in enumerate( lks[:len(lks)] ):
+            # Add the location to the filterset
             cfilters = filters.copy()
-        #    cfilters["location"] = {"hierarchy":"[DeutschlandNodes].[Kreise71Web].[FedStateKey71]","values":{lk:["[DeutschlandNodes].[Kreise71Web].[FedStateKey71]"+self.lks.GetSurvStatRKI_Suffix(lk)]}}
+            cfilters["location"] = {"hierarchy":"[DeutschlandNodes].[Kreise71Web].[FedStateKey71]","values":{lk:["[DeutschlandNodes].[Kreise71Web].[FedStateKey71]"+self.lks.GetSurvStatRKI_Suffix(lk)]}}
             pfilters = pfilters = self.PermutateFilters(cfilters)
             
-            self.AsyncRequest(pfilters)
+            # Issue Requests to .Net server, don't wait for results
+            future = self.AsyncRequest(pfilters)
+            future.add_done_callback(functools.partial(handle_future,time.time(),lk,pfilters))
+            
+            # Process previous results while waiting for data to arrive
+            if len(next_result) > 0:
+                first_key = list(next_result.keys())[0]
+                self.ProcessResults(first_key,next_result.pop(first_key),filters)
+            
+            # Wait till data is there
+            loop.run_until_complete(future)
+            if j%10 == 0:
+                print(j,"%.3fs"%(time.time()-t1))
+            if j%50 == 0:
+                print("Idle for 10s to appease the .NET-gods.")
+                time.sleep(10)
+        
+        # Process the rest of the results (in general this should be the result from the last request)
+        for lk,result in next_result.items():
+            self.ProcessResults(lk,result,filters)
+        
+        t2 = time.time()
+        print("Total crawl %.3fs"%(t2-t1))
+        loop.run_until_complete(self.client.transport.aclose())
+        self.WriteToFile()
+        
+    def WriteToFile(self):
+        date = datetime.date.today()
+        ts = (date.year%100)*10000+date.month*100+date.day
+        with open("data/lks_%d.pickle"%ts,"bw+") as f:
+            pickle.dump(self.lks_by_year,f)
+    
+    def Crawl(self):
+        # Currently broken...
+        filters = self.PrepareFilters()
+        
+#        for lk in in self.lks.GetLandkreisIDs():
+        for lk in [x for x in self.lks.GetLandkreisIDs()][:4]:
+            cfilters = filters.copy()
+            cfilters["location"] = {"hierarchy":"[DeutschlandNodes].[Kreise71Web].[FedStateKey71]","values":{lk:["[DeutschlandNodes].[Kreise71Web].[FedStateKey71]"+self.lks.GetSurvStatRKI_Suffix(lk)]}}
+            pfilters = pfilters = self.PermutateFilters(cfilters)
+            
+        #    self.AsyncRequest(pfilters)
             
 
 if __name__=="__main__":
     
     lkc = LK_Crawler()
-#    response = Request(client)
-#    print(response)
+    
