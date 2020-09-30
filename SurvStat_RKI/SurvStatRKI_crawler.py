@@ -387,7 +387,8 @@ class LK_Crawler(Crawler):
                             b[ksex] = c
                             c[w] = counts
             except:
-                print(results)
+                print(names)
+                print("Exception",i,results,"\n")
                         
         self.lks_by_year[year][lk] = a
     
