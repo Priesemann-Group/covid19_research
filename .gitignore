@@ -12,3 +12,6 @@ __pycache__/
 
 # Mypy cache
 .mypy_cache/
+
+# OSX stuff
+.DS*
