@@ -8,4 +8,5 @@
 
 <p float="left">
   <img src="notebooks/plots/DE_forecast4.svg" height="450" />
+  <img src="notebooks/plots/DE_forecast2_41m.svg" height="450" />
 </p>
