@@ -2,7 +2,7 @@
 # @Author:        Sebastian B. Mohr
 # @Email:
 # @Created:       2020-10-14 10:18:18
-# @Last Modified: 2020-10-14 10:57:41
+# @Last Modified: 2020-10-14 11:01:06
 # ------------------------------------------------------------------------------ #
 import urllib.request
 import zipfile
@@ -40,6 +40,8 @@ def ensure_dir(file_path):
 
 if __name__ == "__main__":
     # Download new files
+    ensure_dir("./Data/")
+    ensure_dir("./Data_raw/")
     df = get_new_files()
 
     # Iterate over each country
@@ -47,14 +49,14 @@ if __name__ == "__main__":
         # Select country
         temp = df.xs(country, level="Country")
         # Create folder
-        ensure_dir(f"./Data/{country.replace(' ', '')}")
+        ensure_dir(f"./Data/{country.replace(' ', '')}/")
 
         # Iterate over each region
         for region in temp.index.get_level_values("Region").unique():
             # Select Region
             temp_2 = temp.xs(region, level="Region")
             # Create folder
-            dire = f"./Data/{country.replace(' ', '')}/{region.replace(' ', '')}"
+            dire = f"./Data/{country.replace(' ', '')}/{region.replace(' ', '')}/"
             ensure_dir(dire)
 
             # Iterate over all age groups
