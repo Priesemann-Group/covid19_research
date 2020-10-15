@@ -69,6 +69,6 @@ if __name__ == "__main__":
                 b[f"{age}"] = temp_3["Deaths"]
                 c[f"{age}"] = temp_3["Tests"]
 
-            a.to_csv(f"{dire}/cases.csv")
-            b.to_csv(f"{dire}/deaths.csv")
-            c.to_csv(f"{dire}/tests.csv")
+            a.to_csv(f"{dire}cases.csv")
+            b.to_csv(f"{dire}deaths.csv")
+            c.to_csv(f"{dire}tests.csv")
