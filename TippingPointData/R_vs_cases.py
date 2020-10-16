@@ -2,7 +2,7 @@
 # @Author:        Sebastian B. Mohr
 # @Email:
 # @Created:       2020-10-14 11:10:57
-# @Last Modified: 2020-10-14 16:15:08
+# @Last Modified: 2020-10-16 11:04:43
 # ------------------------------------------------------------------------------ #
 import sys
 import pandas as pd
@@ -120,7 +120,7 @@ def Landkreise():
     fig, axes = plt.subplots(2, 1, figsize=(12, 9))
 
     begin = datetime.datetime(2020, 8, 2)
-    end = datetime.datetime(2020, 10, 10)
+    end = datetime.datetime(2020, 10, 12)
     # Daily cases
     axes[0].plot(ratio[begin:end], data_R[begin:end], "d-")
     axes[0].set_xlabel(
@@ -135,7 +135,7 @@ def Landkreise():
     # Daily cases
     axes[1].plot(weekly_ratio[begin:end], weekly_R[begin:end], "d-")
     axes[1].set_xlabel(
-        f"Cases per 100.000\nfrom {begin.strftime('%m-%d')} to {datetime.date.today().strftime('%m-%d')}"
+        f"Weekly cases per 100.000\nfrom {begin.strftime('%m-%d')} to {datetime.date.today().strftime('%m-%d')}"
     )
     # axes[1].set_ylabel("R\n(window of 7 days, generation duration of 4 days)")
     axes[1].set_xlim(0, 80)
@@ -174,6 +174,7 @@ def Landkreise():
     y = df["y"].to_numpy()
 
     print(scipy.stats.pearsonr(x, y))
+    plt.savefig("R_vs_cases_landkreise.png", dpi=300)
 
 
 def Bundeslaender():
@@ -211,7 +212,7 @@ def Bundeslaender():
     data_b = data_b.fillna(0)
     ratio = ratio.asfreq("D")
     ratio = ratio.fillna(0)
-    ratio = ratio.rolling(window=7).mean() * 7
+    ratio = ratio.rolling(window=14).mean() * 7
     # ratio = ratio[data_l.rolling(window=7).sum() > 20]
 
     # Calc R
@@ -239,9 +240,10 @@ def Bundeslaender():
     fig, axes = plt.subplots(2, 1, figsize=(12, 9))
 
     begin = datetime.datetime(2020, 8, 2)
+    end = datetime.datetime(2020, 10, 12)
 
     # Daily
-    axes[0].plot(ratio[begin:], data_R[begin:], "d-")
+    axes[0].plot(ratio[begin:end], data_R[begin:end], "d-")
     axes[0].set_xlabel(
         f"Daily cases per 100.000\nfrom {begin.strftime('%m-%d')} to {datetime.date.today().strftime('%m-%d')}"
     )
@@ -251,7 +253,7 @@ def Bundeslaender():
 
     # Weekly
 
-    axes[1].plot(weekly_ratio[begin:], weekly_R[begin:], "d-")
+    axes[1].plot(weekly_ratio[begin:end], weekly_R[begin:end], "d-")
     axes[1].set_xlabel(
         f"Weekly cases per 100.000\nfrom {begin.strftime('%m-%d')} to {datetime.date.today().strftime('%m-%d')}"
     )
@@ -268,4 +270,9 @@ def Bundeslaender():
         rotation="vertical",
     )
 
-    fig.show()
+    plt.savefig("R_vs_cases_bundesländer.png", dpi=300)
+
+
+if __name__ == "__main__":
+    Bundeslaender()
+    Landkreise()
