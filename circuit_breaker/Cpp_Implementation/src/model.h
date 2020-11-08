@@ -38,7 +38,7 @@ public:
 	double xi		 					//Asymptomatic ratio
 		= 0.32;
   double nu  	 					//Registered contacts (quarantined)
-  	= 0.75;
+  	= 0.075;
 	double lambda_r 			//Random testing rate
 		= 0.0;
 	double lambda_r_prime //Reduced random testing rate
@@ -58,7 +58,7 @@ public:
 	double rho   					//Exposed-to-infectious rate
 		= 0.25;
 	double phi 						//ratio 
-		= 0.4;
+		= 0.38;
 	double R_0						//Basic reproduction number
 		= 3.3;
 
@@ -78,8 +78,6 @@ public:
 	double N_test(double I_H, double I_Hs);
 	double N_test_S(double I_Hs);
 	double N_traced(double t);
-	double R_Q(double t);
-
 
 	// Data vectors to save a part of the last calculations
 	std::vector<double> time;

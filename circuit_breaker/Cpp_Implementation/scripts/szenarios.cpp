@@ -102,22 +102,22 @@ void stable_model_to_tipping_point(){
 
 	SV initials = {
 		//Susceptible pool  S
-		1e6 - 4*100.0,
+		1e6 - 4*10.0,
 
 		//Exposed pool (quarantined)  E_Q
-		100.0,
+		10.0,
 
 		//Exposed pool (hidden)				E_H
-		100.0,
+		10.0,
 
 		//Infectious (quarantined)		I_Q 	
-		100.0,
+		10.0,
 
 		//Infectious (hidden)					I_H
-		100.0,
+		10.0,
 
 		//Infectious (hidden, symptomatic) I_Hs
-		(1.0-0.32)*100.0, 
+		(1.0-0.32)*10.0, 
 
 		//Recovered  R
 		0, 		
@@ -125,31 +125,24 @@ void stable_model_to_tipping_point(){
 
 	double t_max = 300;
 	Model main_model(initials);
-	main_model.k = TimeDependentParameter(0.389);
+	
 	main_model.Phi = TimeDependentParameter(0.1);
 
 
 	std::vector<Model> models;
 	//Add change to behaviour
-	double center = 50.0+3*30;
-	double transient = 100;
-	while(transient > 10){
+	
+	double capacity = 20.0;
+	while(capacity < 5500.){
 		Model new_mod = main_model;
-
-		new_mod.k.add_change(
-			//center
-			center,
-			//length
-			transient,
-			0.8
-			);
-		new_mod.name = to_string(transient);
+		new_mod.name = to_string(capacity);
+		new_mod.N_test_max = capacity;
 		models.push_back(new_mod);
-		transient --;
+		capacity += 5.0;
 	}
 
 
-	
+
  	for_each(
     execution::par_unseq,
     models.begin(),models.end(),

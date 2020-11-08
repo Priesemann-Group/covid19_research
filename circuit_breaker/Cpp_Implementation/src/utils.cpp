@@ -72,13 +72,15 @@ double gamma_pdf(double x,double a, double b){
 
 std::vector<double> get_new_cases(data_struct &data, Model &model){
    std::vector<double> N;
+   double gamma = model.gamma;
+
 
    for (unsigned long int i = 0; i < data.time.size(); ++i)
    {
       N.push_back(
-         model.gamma*model.k(data.time[i])*model.R_0*data.system[i][0]/model.M*data.system[i][4]+
-         model.gamma*(model.nu+model.epsilon)*model.k(data.time[i])*model.R_0*
-         data.system[i][0]/model.M*data.system[i][3]
+         gamma * model.k(data.time[i]) * model.R_0 * data.system[i][0]/model.M * data.system[i][4] +
+         gamma * (model.nu+model.epsilon)*model.R_0*
+         data.system[i][0]/model.M * data.system[i][3]
          +model.Phi(data.time[i])*data.system[i][0]/model.M
       );
    }
@@ -110,7 +112,7 @@ vector<double> get_new_cases_obs(data_struct &data, Model &model){
    int count = 0;
    for (long unsigned int i = 0; i < data.time.size(); ++i)
    {
-      if (data.time[i] > 11.0) break;
+      if (data.time[i] > 12.0) break;
       part_2.push_back(gamma_pdf(data.time[i],4.0,1.0));
       count ++;
    }
@@ -155,7 +157,6 @@ Infectious (hidden),\
 Infectious (hidden susceptible),\
 Recovered,\
 Reprodcution (hidden),\
-Reprodcution (quarantined),\
 Influx,\
 Contact,\
 N_traced,\
@@ -171,7 +172,6 @@ New cases observed"
          myfile << data.system[i][j] << ", ";
       }
       myfile << model.k(data.time[i])*model.R_0 << ", ";
-      myfile << model.R_Q(data.time[i]) << ", ";
       myfile << model.Phi(data.time[i]) << ", ";
       myfile << model.k(data.time[i]) << ", ";
       myfile << model.N_traced(data.time[i]) << ", ";

@@ -33,7 +33,7 @@ void Solver::run(SV initial, double t_max){
 	SV next = initial;
 
 	// Do RK4 steps till t_max
-	double t = dt;
+	double t = 0.0;
 	while(t<t_max){
 		next = runge_kutta4(dt,t,next);
 		data.push_back(t,next);

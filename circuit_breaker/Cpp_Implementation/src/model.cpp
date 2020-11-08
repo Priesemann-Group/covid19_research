@@ -5,8 +5,8 @@
 Model::Model(SV initials){
 	//std::cout << "Model constructor" << std::endl;
 	time.push_back(0.0);
-	I_H_tau.push_back(initials[5]);
-	I_Hs_tau.push_back(initials[6]);
+	I_H_tau.push_back(initials[4]);
+	I_Hs_tau.push_back(initials[5]);
 
 	double population = 0.0;
 	for (unsigned long int i = 0; i < initials.size(); ++i)
@@ -14,7 +14,6 @@ Model::Model(SV initials){
 		population+=initials[i];
 	}
 	M = population - initials[5];
-
 }
 
 Model::~Model() {
@@ -49,18 +48,18 @@ SV Model::dgl(double t, SV current){
 	//S compartment
 	next[0] =
 		-gamma*k(t)*R_0*S/M*I_H   -					//hidden contagion
-		gamma*R_Q(t)*S/M*I_Q   	- 				//traced contagion
+		gamma*(nu+epsilon)*R_0*S/M*I_Q   	- 				//traced contagion
 		Phi(t)*S/M;												//external influx
 
 	//E_Q compartment
 	next[1] = 
-		nu*gamma*k(t)*R_0*S/M*I_Q + 				//traced contagion
+		nu*gamma*R_0*S/M*I_Q + 				//traced contagion
 		chi_tau()*N_traced(t)   -				//contact tracing
 		rho*E_Q;											//end of latency
 
 	//E_H compartment
 	next[2] = 
-		gamma*k(t)*R_0*S/M*(I_H+epsilon*I_Q) -	//hidden contagion
+		gamma*S/M*(k(t)*R_0*I_H+epsilon*I_Q*R_0) -	//hidden contagion
 		chi_tau()*N_traced(t)					   -	//contact tracing
 		rho*E_H;
 														
@@ -84,10 +83,9 @@ SV Model::dgl(double t, SV current){
 		(1.0-xi)*(
 		chi_sr()*N_traced(t)-												    //contact tracing
 		Phi(t)*S/M); 																//external influx							
-		   
+	
 	//R compartment
 	next[6] = gamma*(I_Q+I_H);
-
 	return next;
 }
 
@@ -146,29 +144,27 @@ double Model::N_test_S(double _I_Hs){
 
 double Model::N_traced(double t){
 	double _I_H, _I_Hs;
-	if (t-tau < time.back() && t-tau > time[0])
+	if ((t-tau) > time[0])
 	{
-		_I_Hs = interpolate(time, I_Hs_tau, t-tau, false);
-		_I_H = interpolate(time, I_H_tau, t-tau, false);
-
+		_I_Hs = interpolate(time, I_Hs_tau, t-tau, true);
+		_I_H = interpolate(time, I_H_tau, t-tau, true);
+		
 	} else{
 		_I_Hs = I_Hs_tau[0];
 		_I_H = I_H_tau[0];
 	}
+
+
 	double t_s = gamma/(gamma+lambda_s+lambda_r);
 	double t_r = gamma/(gamma+lambda_r);
 
-
+	
 	if (N_test(_I_H,_I_Hs) <= N_test_max)
 	{
-		return eta*k(t-tau)*R_0*(_I_Hs*t_r*lambda_r+_I_Hs*(t_s*lambda_s+(t_s-t_r)*lambda_r));
+		return eta*k(t-tau)*R_0*(_I_H*t_r*lambda_r+_I_Hs*(t_s*lambda_s+(t_s-t_r)*lambda_r));
 	}
 	else{
 		double lambda_eq = (lambda_r*(1.0-phi)*t_r+phi*lambda_s*t_s)/(lambda_r+phi*lambda_s);
 		return eta*k(t-tau)*R_0*N_test_max*lambda_eq;
 	}
-}
-
-double Model::R_Q(double t){
-	return (nu+epsilon)*R_0;
 }
