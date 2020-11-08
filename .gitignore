@@ -15,3 +15,8 @@ __pycache__/
 
 # OSX stuff
 .DS*
+
+# C stuff
+*.o
+
+circuit_breaker/Cpp_Implementation/data/*/
