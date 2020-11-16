@@ -2,7 +2,7 @@
 # @Author:        F. Paul Spitzner
 # @Email:         paul.spitzner@ds.mpg.de
 # @Created:       2020-11-14 17:15:43
-# @Last Modified: 2020-11-14 17:40:25
+# @Last Modified: 2020-11-16 13:23:17
 # ------------------------------------------------------------------------------ #
 import os
 import sys
@@ -90,30 +90,47 @@ k = np.loadtxt("/Users/paul/Downloads/kt_LD.csv", delimiter=",")
 d = np.loadtxt("/Users/paul/Downloads/D_LD.csv", delimiter=",")
 
 
-fig_bar, ax_bar = plt.subplots(figsize=(0.7, 2))
+
 fig, ax = plt.subplots(figsize=(6, 4))
-sns.heatmap(
-    data=d,
-    ax=ax,
-    cmap=cmap,
-    vmin=0,
-    vmax=9,
-    xticklabels=k,
-    yticklabels=t,
-    square=False,
-    cbar_ax=ax_bar,
-)
-ax.invert_yaxis()
+
+# sns.heatmap(
+#     data=d,
+#     ax=ax,
+#     cmap=cmap,
+#     vmin=0,
+#     vmax=9,
+#     xticklabels=k,
+#     yticklabels=t,
+#     square=False,
+#     cbar_ax=ax_bar,
+# )
+# ax.invert_yaxis()
+
+
+fig, ax = plt.subplots()
+levels = np.arange(-0.25, 9.75, 0.5)
+CS = ax.contourf(k, t, d, levels, cmap=cmap, origin='lower')
+CS2 = ax.contour(CS, levels=[4,8], colors=['white', 'black'], origin='lower')
+
+# Make a colorbar for the ContourSet returned by the contourf call.
+cbar = fig.colorbar(CS, ticks=np.arange(0,10))
+cbar.ax.set_ylabel('required lockdown (weeks)')
+# Add the contour line levels to the colorbar
+cbar.add_lines(CS2)
+
 ax.set_ylabel("start time Ts")
 ax.set_xlabel("contact fraction k")
 
 fig.tight_layout()
 fig.savefig("/Users/paul/Desktop/heatmap.pdf")
-fig_bar.tight_layout()
-fig_bar.savefig("/Users/paul/Desktop/heatmap_legend.pdf")
 
 
-# disable everyting for png
+# redo everyting for png and remove clutter
+fig, ax = plt.subplots()
+levels = np.arange(-0.25, 9.75, 0.5)
+CS = ax.contourf(k, t, d, levels, cmap=cmap, origin='lower')
+CS2 = ax.contour(CS, levels=[4,8], colors=['white', 'black'], origin='lower')
+fig.tight_layout()
 plt.gca().set_axis_off()
 ax.axis("off")
 plt.subplots_adjust(top=1, bottom=0, right=1, left=0, hspace=0, wspace=0)
