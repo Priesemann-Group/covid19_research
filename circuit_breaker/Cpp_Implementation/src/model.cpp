@@ -14,6 +14,8 @@ Model::Model(SV initials){
 		population+=initials[i];
 	}
 	M = population - initials[5];
+
+	init = initials;
 }
 
 Model::~Model() {
@@ -46,11 +48,13 @@ SV Model::dgl(double t, SV current){
 	SV next;
 
 	//S compartment
+	/*
 	next[0] =
 		-gamma*k(t)*R_0*S/M*I_H   -					//hidden contagion
 		gamma*(nu+epsilon)*R_0*S/M*I_Q   	- 				//traced contagion
 		Phi(t)*S/M;												//external influx
-
+	*/
+	S = 1e6;
 	//E_Q compartment
 	next[1] = 
 		nu*gamma*R_0*S/M*I_Q + 				//traced contagion

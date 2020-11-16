@@ -37,6 +37,8 @@ def create_plot_scenarios(
     forecast_heading=r"$\bf Forecasts\!:$",
     add_more_later=False,
     population=83.02e6,
+    R_type="R",
+    text_labels=["A", "B"],
 ):
     """
     Creates a timeseries overview:
@@ -47,19 +49,24 @@ def create_plot_scenarios(
     # Get rcParams
     rcParams = cov19.plot.rcParams
     figsize = (3, 6)
-    ylim_lam = [-0.15, 0.45]
+    ylim_lam = [-0.1, 0.5]
 
-    label_y_new = f"Daily new\nreported cases"
+    label_y_new = f"Reported cases per million"
     label_y_cum = f"Total\nreported cases"
-    label_y_lam = f"Effective\ngrowth rate $\lambda^\\ast (t)$"
+    if R_type == "R":
+        label_y_lam = f"Reproduction number\n$R(t)$"
+    else:
+        label_y_lam = f"Effective\n growth rate $\lambda^*(t)$"
     label_leg_data = "Data"
     label_leg_dlim = f"Updated on\n{datetime.datetime.now().strftime('%Y/%m/%d')}"
+
     if rcParams["locale"].lower() == "de_de":
         label_y_new = f"Täglich neu\ngemeldete Fälle"
         label_y_cum = f"Gesamtzahl\ngemeldeter Fälle"
         label_y_lam = f"Effektive\nWachstumsrate"
         label_leg_data = "Daten"
         label_leg_dlim = f"Daten bis\n{model.data_end.strftime('%-d. %B %Y')}"
+
     letter_kwargs = dict(x=-0.25, y=1, size="x-large")
     # per default we assume no hierarchical
     if region is None:
@@ -102,18 +109,23 @@ def create_plot_scenarios(
     draw_insets = False
 
     # ------------------------------------------------------------------------------ #
-    # lambda*, effective growth rate
+    # lambda*, or R  effective growth rate
     # ------------------------------------------------------------------------------ #
     ax = axes[0]
     mu = trace["mu"][:, None]
     lambda_t, x = cov19.plot._get_array_from_trace_via_date(model, trace, "lambda_t")
-    y = lambda_t[:, :, region] - mu
+    if R_type == "R":
+        y = (lambda_t[:, :, region] - mu + 1.0) ** 4
+        ylim_lam = [0.5, 2.0]
+    else:
+        y = lambda_t[:, :, region] - mu
+
     cov19.plot._timeseries(x=x, y=y, ax=ax, what="model", color=color_fcast)
     ax.set_ylabel(label_y_lam)
     ax.set_ylim(ylim_lam)
 
     if not axes_provided:
-        ax.text(s="A", transform=ax.transAxes, **letter_kwargs)
+        ax.text(s=text_labels[0], transform=ax.transAxes, **letter_kwargs)
         ax.hlines(0, x[0], x[-1], linestyles=":")
         if annotate_constrained:
             try:
@@ -155,19 +167,26 @@ def create_plot_scenarios(
         pd.DataFrame(y_past).rolling(7, axis=1).mean().to_numpy() / population * 1e6
     )
     y_past = y_past[:, :, region]
-    y_data = model.new_cases_obs[:, region] / population * 1e6
+    y_data = (
+        pd.DataFrame(model.new_cases_obs[:, region])
+        .rolling(7, axis=0)
+        .mean()
+        .to_numpy()
+        / population
+        * 1e6
+    )[:, 0]
     x_data = pd.date_range(start=model.data_begin, end=model.data_end)
 
     # data points and annotations, draw only once
     if not axes_provided:
-        ax.text(s="B", transform=ax.transAxes, **letter_kwargs)
+        ax.text(s=text_labels[1], transform=ax.transAxes, **letter_kwargs)
         cov19.plot._timeseries(
             x=x_data,
             y=y_data,
             ax=ax,
             what="data",
             color=color_data,
-            zorder=5,
+            zorder=9,
             label=label_leg_data,
         )
         # model fit
@@ -177,6 +196,7 @@ def create_plot_scenarios(
             ax=ax,
             what="model",
             color=color_past,  # label="Fit",
+            zorder=10,
         )
         if add_more_later:
             # dummy element to separate forecasts
@@ -207,6 +227,7 @@ def create_plot_scenarios(
         what="fcast",
         color=color_fcast,
         label=f"{forecast_label}",
+        zorder=11,
     )
     ax.set_ylabel(label_y_new)
     # ax.set_ylim(ylim_new)
@@ -228,7 +249,7 @@ def create_plot_scenarios(
     )
     y_past = y_past[:, :, region]
 
-    y_data = model.new_cases_obs[:, region] / population * 1e6
+    y_data = model.new_cases_obs[:, region]
     x_data = pd.date_range(start=model.data_begin, end=model.data_end)
 
     x_data, y_data = cov19.plot._new_cases_to_cum_cases(x_data, y_data, "data", offset)

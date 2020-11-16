@@ -18,7 +18,9 @@ import theano
 import theano.tensor as tt
 import pymc3 as pm
 import pickle
+import logging
 
+log = logging.getLogger(__name__)
 from plot_scenarios import create_plot_scenarios
 import matplotlib.lines as mlines
 from construct_models import construct_model
@@ -51,11 +53,12 @@ countries = {
     "Italy": {
         "data_begin": datetime.datetime(2020, 6, 10),
         "data_end": datetime.datetime(2020, 11, 10),
-        "population": 11.46e6,
+        "population": 60.36e6,
     },
     "Belgium": {
         "data_begin": datetime.datetime(2020, 6, 10),
         "data_end": datetime.datetime(2020, 10, 27),
+        "population": 11.46e6,
     },
     "Poland": {
         "data_begin": datetime.datetime(2020, 6, 10),
@@ -95,6 +98,13 @@ for c_name, conf in countries.items():
         data_begin=conf["data_begin"],
         data_end=conf["data_end"],
     )
+    if c_name == "Switzerland":
+        new_cases_obs = owd._filter(
+            "new_cases_smoothed",
+            country="Switzerland",
+            data_begin=conf["data_begin"],
+            data_end=conf["data_end"],
+        )
     total_cases_obs = owd.get_total(
         "confirmed",
         country=c_name,
@@ -104,26 +114,34 @@ for c_name, conf in countries.items():
 
     # Construct change points
     change_points = [
-        # Initial lambda
         dict(
-            pr_mean_date_transient=conf["data_begin"] - datetime.timedelta(days=4),
+            pr_mean_date_transient=conf["data_begin"] - datetime.timedelta(days=1),
             pr_sigma_date_transient=1.5,
             pr_median_lambda=0.12,
             pr_sigma_lambda=0.5,
-        ),
-        # Change i.e. tipping point
-        dict(
-            pr_mean_date_transient=datetime.datetime(2020, 8, 15),
-            pr_sigma_date_transient=10.0,
-            pr_median_lambda=0.19,
-            pr_sigma_lambda=0.5,
-            pr_median_transient_len=20.0,
-            pr_sigma_transient_len=4.00,
+            pr_sigma_transient_len=0.5,
         ),
     ]
+    log.info(f"Adding possible change points at:")
+    for i, day in enumerate(
+        pd.date_range(start=conf["data_begin"], end=conf["data_end"])
+    ):
+        if day.weekday() == 6 and (datetime.datetime.today() - day).days > 7:
+            print(f"\t{day}")
+
+            # Prior factor to previous
+            change_points.append(
+                dict(  # one possible change point every sunday
+                    pr_mean_date_transient=day,
+                    pr_sigma_date_transient=1.5,
+                    pr_sigma_lambda=0.2,  # wiggle compared to previous point
+                    relative_to_previous=True,
+                    pr_factor_to_previous=1,
+                )
+            )
 
     model = construct_model(change_points, new_cases_obs, conf["data_begin"])
-    trace = pm.sample(model=model, init="advi", tune=10, draws=10)
+    trace = pm.sample(model=model, init="advi", tune=2000, draws=2000)
 
     with open(f"./traces/{c_name}.pickle", "wb") as f:
         pickle.dump((model, trace), f)
@@ -139,7 +157,9 @@ for c_name, conf in countries.items():
 
     for ax in axes:
         ax.set_xlim(conf["data_begin"], conf["data_end"] + datetime.timedelta(days=5))
-
+        ax.yaxis.set_major_formatter(
+            matplotlib.ticker.FuncFormatter(_format_k(int(prec)))
+        )
     ## Inset full data
     axins = axes[1].inset_axes(bounds=[0.2, 0.5, 0.55, 0.4])
     for line in axes[1].lines:
@@ -167,10 +187,8 @@ for c_name, conf in countries.items():
     axins.set_xticks(ticks=[new_cases_inset.index.min(), new_cases_inset.index.max()])
 
     ## Format lambda to R rki
-    ticks = ticker.FuncFormatter(lambda x, pos: "{0:g}".format((x + 1) ** 4))
-    axes[0].yaxis.set_major_formatter(ticks)
-    axes[0].set_ylim((0.8) ** (1 / 4) - 1, (1.5) ** (1 / 4) - 1)
-    axes[0].set_ylabel("Reproduction number\n $R=(\lambda_{eff}+1)^4$")
+    axes[0].set_ylabel("Reproduction number\n $R$")
+    axes[0].set_ylim(0.8, 1.4)
     fig.suptitle("")
     axes[0].xaxis.set_major_locator(
         mpl.dates.WeekdayLocator(interval=3, byweekday=mpl.dates.SU)
@@ -181,16 +199,7 @@ for c_name, conf in countries.items():
     axes[2].xaxis.set_major_locator(
         mpl.dates.WeekdayLocator(interval=3, byweekday=mpl.dates.SU)
     )
-    axes[0].set_yticklabels(
-        [
-            "0.8",
-            "0.8",
-            "1.0",
-            "1.2",
-            "1.4",
-        ]
-    )
-    axes[1].set_ylabel("Reported cases per\n1.000.000 inhabitants")
+    axes[1].set_ylabel("Reported cases per million")
     axes[2].remove()
     # save: ts for timeseries
     plt.savefig(

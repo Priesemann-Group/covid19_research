@@ -62,6 +62,8 @@ public:
 	double R_0						//Basic reproduction number
 		= 3.3;
 
+	SV init;
+
 	// Parameters second order (time dependent)
 	// small class which allows easy modeling
 	TimeDependentParameter k{0.8}; // Contacts

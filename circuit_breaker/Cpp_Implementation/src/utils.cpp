@@ -183,3 +183,10 @@ New cases observed"
    //cout << "Saved to file" << std::endl;
 }
 
+string convert_double_to_fixed(double in, int precision){
+   std::stringstream stream;
+   stream << std::fixed << std::setprecision(precision) << in;
+   std::string s = stream.str();
+   return s;
+}
+

@@ -18,7 +18,7 @@ import theano
 import theano.tensor as tt
 import pymc3 as pm
 import pickle
-from plot_scenarios import create_plot_scenarios
+from plot_scenarios import create_plot_scenarios, _format_k
 import matplotlib.lines as mlines
 
 try:
@@ -31,7 +31,7 @@ except ModuleNotFoundError:
 rki = cov19.data_retrieval.RKI()
 rki.download_all_available_data(force_download=True)
 data_begin = datetime.datetime(2020, 6, 13)
-data_end = datetime.datetime(2020, 11, 1)
+data_end = datetime.datetime(2020, 11, 10)
 new_cases_obs = rki.get_new("confirmed", data_begin=data_begin, data_end=data_end)
 total_cases_obs = rki.get_total("confirmed", data_begin=data_begin, data_end=data_end)
 
@@ -92,7 +92,7 @@ change_points_c.append(
         pr_sigma_date_transient=10.0,
         pr_median_lambda=0.19,
         pr_sigma_lambda=0.5,
-        pr_median_transient_len=20.0,
+        pr_median_transient_len=10.0,
         pr_sigma_transient_len=4.00,
     ),
 )
@@ -115,6 +115,7 @@ def construct_model(change_points):
     pr_delay = 10
     with cov19.model.Cov19Model(**params_model) as this_model:
         # Create the an array of the time dependent infection rate lambda
+        cp = change_points
         lambda_t_log = cov19.model.lambda_t_with_sigmoids(
             pr_median_lambda_0=0.4,
             pr_sigma_lambda_0=0.5,
@@ -184,14 +185,16 @@ mod_a = construct_model(change_points_a)
 mod_b = construct_model(change_points_b)
 mod_c = construct_model(change_points_c)
 
-tra_a = pm.sample(model=mod_a, init="advi", tune=100, draws=100)
-tra_b = pm.sample(model=mod_b, init="advi", tune=100, draws=100)
-tra_c = pm.sample(model=mod_b, init="advi", tune=100, draws=100)
+tra_a = pm.sample(model=mod_a, init="advi", tune=1000, draws=3000, chains=4)
+tra_b = pm.sample(model=mod_b, init="advi", tune=1000, draws=3000, chains=4)
+tra_c = pm.sample(model=mod_c, init="advi", tune=1000, draws=3000, chains=4)
 
 with open("./figures/trace.pickle", "wb") as f:
     pickle.dump(([mod_a, tra_a], [mod_b, tra_b], [mod_c, tra_c]), f)
 
-
+"""with open("./dl/trace.pickle", "rb") as f:
+    ([mod_a, tra_a], [mod_b, tra_b], [mod_c, tra_c]) = pickle.load(f)
+"""
 """ ## Plotting
     
     ### Save path
@@ -205,10 +208,18 @@ except:
     save_to = "./figures/reproduction_"
 
 for this_model, trace, change_points, name in zip(
-    [mod_a, mod_b, mod_c],
-    [tra_a, tra_b, tra_c],
-    [change_points_a, change_points_b, change_points_c],
-    ["short", "long", "free"],
+    [
+        mod_c,
+    ],
+    [
+        tra_c,
+    ],
+    [
+        change_points_c,
+    ],
+    [
+        "free",
+    ],
 ):
 
     """### Timeseries
@@ -217,7 +228,8 @@ for this_model, trace, change_points, name in zip(
     fig, axes = create_plot_scenarios(this_model, trace, offset=total_cases_obs[0])
 
     for ax in axes:
-        ax.set_xlim(datetime.datetime(2020, 6, 13), datetime.datetime(2020, 11, 8))
+        ax.set_xlim(datetime.datetime(2020, 6, 20), datetime.datetime(2020, 11, 14))
+    axes[0].set_xlim(datetime.datetime(2020, 6, 20), datetime.datetime(2020, 10, 18))
     # Set y lim for effective growth rate
     axes[0].set_ylim(-0.1, 0.2)
     # axes[1].set_ylim(0, new_cases_obs.max() + 5000)
@@ -261,11 +273,7 @@ for this_model, trace, change_points, name in zip(
     # Format lambda to R rki
     import matplotlib.ticker as ticker
 
-    ticks = ticker.FuncFormatter(lambda x, pos: "{0:g}".format((x + 1) ** 4))
-    axes[0].yaxis.set_major_formatter(ticks)
-
-    axes[0].set_ylim((0.8) ** (1 / 4) - 1, (1.5) ** (1 / 4) - 1)
-    axes[0].set_ylabel("Reproduction number\n $R=(\lambda_{eff}+1)^4$")
+    axes[0].set_ylabel("Reproduction number\n R")
     fig.suptitle("")
     axes[0].xaxis.set_major_locator(
         mpl.dates.WeekdayLocator(interval=3, byweekday=mpl.dates.SU)
@@ -277,17 +285,8 @@ for this_model, trace, change_points, name in zip(
         mpl.dates.WeekdayLocator(interval=3, byweekday=mpl.dates.SU)
     )
 
-    axes[0].set_yticklabels(
-        [
-            "0.8",
-            "0.8",
-            "1.0",
-            "1.2",
-            "1.4",
-        ]
-    )
-
-    axes[1].set_ylabel("Reported cases per \n 1.000.000 population")
+    axes[0].set_ylim(0.8, 1.6)
+    axes[1].set_ylabel("Reported cases per million")
     axes[2].remove()
     # save: ts for timeseries
     plt.savefig(
@@ -373,8 +372,11 @@ for this_model, trace, change_points, name in zip(
     axes[1, 0].text(s="D", transform=axes[1, 0].transAxes, **letter_kwargs)
 
     # Conditional
-    if i == 2 and name == "free":
-        axes[1, 1].set_xlim(0, 10)
+    if name == "free":
+        axes[1, 2].set_xlim(0, 12)
+        axes[1, 1].set_xlim(
+            datetime.datetime(2020, 9, 23), datetime.datetime(2020, 10, 16)
+        )
 
     marker = mlines.Line2D(
         [],
@@ -414,5 +416,8 @@ for this_model, trace, change_points, name in zip(
 # ------------------------------------------------------------------------------ #
 # Model Comparison
 # ------------------------------------------------------------------------------ #
-
+mod_a.name = "short"
+mod_b.name = "long"
+mod_c.name = "free"
 comparison = pm.compare({mod_a: tra_a, mod_b: tra_b, mod_c: tra_c}, ic="LOO")
+print(comparison)
