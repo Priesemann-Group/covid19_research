@@ -16,6 +16,7 @@ import seaborn as sns
 from matplotlib.colors import LogNorm
 from heatmap import reverse_cmap, cmap_to_mpl
 import matplotlib as mpl
+import matplotlib.font_manager
 
 # default fonts
 mpl.rcParams["font.sans-serif"] = "Arial"
@@ -133,7 +134,8 @@ if __name__ == "__main__":
     axes[0].plot(
         phi10.index, phi10["N_equilibrium"], label=r"$\Phi = 10$", color="tab:red"
     )
-    axes[0].set_ylim(0, 200)
+    axes[0].set_ylim(0, 110)
+    axes[0].set_xlim(0.15, 0.8)
     axes[0].set_xlabel(r"Contact reduction $k$")
     axes[0].set_ylabel(r"$N_{eq}$")
     axes[0].legend()
@@ -146,26 +148,36 @@ if __name__ == "__main__":
     Y_unique = np.sort(data_heatmap["Phi"].unique())
     X, Y = np.meshgrid(X_unique, Y_unique)
 
-    levels = np.arange(-5, 100, 5)
+    levels = np.logspace(base=10, start=-1.08, stop=2.1, num=20)
     CS = axes[1].contourf(
-        X,
-        Y,
-        Z,
-        levels,
-        cmap=cmap,
-        # locator=mpl.ticker.LogLocator(),
-        origin="lower",
+        X, Y, Z, levels, cmap=cmap, locator=mpl.ticker.LogLocator(), origin="lower",
     )
-    # CS2 = axes[1].contour(CS, levels=[4, 8], colors=["white", "black"], origin="lower")
-    cbar = fig.colorbar(CS, ticks=np.arange(0, 100, 10))
+    CS2 = axes[1].contour(CS, levels=[1, 10], colors=["white", "black"], origin="lower")
+    cbar = fig.colorbar(CS, ticks=[0.1, 1, 10, 100])
     cbar.ax.set_ylabel("$N_{eq}$")
-    # cbar.add_lines(CS2)
+    cbar.add_lines(CS2)
 
-    axes[0].invert_xaxis()
-    axes[0].set_ylim(0, 150)
     axes[1].invert_xaxis()
     axes[1].set_ylabel(r"Influx $\Phi$")
-    axes[1].set_xlabel(r"Contact fraction $k$")
+    axes[1].set_xlabel(r"Contact reduction $k$")
+    axes[1].set_xlim(0.35, 0.8)
 
-    fig.savefig("figures/fig_equilibrium.svg", transparent=True, dpi=300)
     fig.savefig("figures/fig_equilibrium.pdf", transparent=True, dpi=300)
+    fig.savefig("figures/fig_equilibrium.png", transparent=True, dpi=300)
+
+    # redo everyting for png and remove clutter
+    fig, ax = plt.subplots()
+    levels = np.logspace(base=10, start=-1.08, stop=2.1, num=20)
+    CS = ax.contourf(
+        X, Y, Z, levels, cmap=cmap, locator=mpl.ticker.LogLocator(), origin="lower",
+    )
+    # CS2 = ax.contour(CS, levels=[4, 8], colors=["white", "black"], origin="lower")
+    fig.tight_layout()
+    plt.gca().set_axis_off()
+    ax.axis("off")
+    ax.invert_xaxis()
+    plt.subplots_adjust(top=1, bottom=0, right=1, left=0, hspace=0, wspace=0)
+    plt.margins(0, 0)
+    plt.gca().xaxis.set_major_locator(plt.NullLocator())
+    plt.gca().yaxis.set_major_locator(plt.NullLocator())
+    fig.savefig("figures/fig_equilibrium_free.png", dpi=600)

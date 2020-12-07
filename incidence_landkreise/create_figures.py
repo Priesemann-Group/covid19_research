@@ -2,7 +2,7 @@
 # @Author:        Sebastian B. Mohr
 # @Email:
 # @Created:       2020-10-27 11:13:12
-# @Last Modified: 2020-10-27 13:31:39
+# @Last Modified: 2020-12-07 10:58:03
 # ------------------------------------------------------------------------------ #
 import pandas as pd
 import numpy as np
@@ -11,6 +11,8 @@ import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.patches import Patch
 import datetime
+from tqdm.auto import tqdm
+import imageio
 
 groups = ["A00-A04", "A05-A14", "A15-A34", "A35-A59", "A60-A79", "A80+"]
 
@@ -18,10 +20,15 @@ df_places = gpd.read_file("./data/landkreise_simplify200.geojson")
 
 # Color of plot
 cmap = matplotlib.colors.ListedColormap(["#008000", "#ffd700", "#e50000"])
-
+images = []
 count = 0
+pbar = tqdm(
+    total=pd.date_range(
+        start=datetime.datetime(2020, 10, 1), end=datetime.datetime.now()
+    ).size
+)
 for date in pd.date_range(
-    start=datetime.datetime(2020, 9, 7), end=datetime.datetime.now()
+    start=datetime.datetime(2020, 10, 1), end=datetime.datetime.now()
 ):
 
     # Load json
@@ -67,4 +74,10 @@ for date in pd.date_range(
     fig.savefig(
         f"./figures/{str(count).zfill(4)}.png", transparent=True, dpi=300,
     )
+
+    # Append to array for gif
+    images.append(imageio.imread(f"./figures/{str(count).zfill(4)}.png"))
     count = count + 1
+    pbar.update(1)
+pbar.close()
+imageio.mimsave("Landkreise.gif", images, "GIF", fps=2)

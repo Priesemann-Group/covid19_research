@@ -3,13 +3,14 @@
 # @Author:        Sebastian B. Mohr
 # @Email:
 # @Created:       2020-10-15 14:08:49
-# @Last Modified: 2020-10-27 12:29:09
+# @Last Modified: 2020-12-07 10:42:56
 # ------------------------------------------------------------------------------ #
 import ujson
 import pandas as pd
 import covid19_inference as cov19
 import numpy as np
 import datetime
+from tqdm.auto import tqdm
 
 """ # Load data
 """
@@ -21,7 +22,8 @@ rki.download_all_available_data(force_download=True)
 
 # Load population data
 population = pd.read_csv(
-    "./data/population_landkreise_altersgruppen.csv", encoding="cp1252",
+    "./data/population_landkreise_altersgruppen.csv",
+    encoding="cp1252",
 )
 # FORMAT BS Should not be neccesary anymore:
 """
@@ -84,8 +86,20 @@ data_rki = rki.data
 date = rki.data["date"].max()
 index = pd.date_range(rki.data["date"].min(), rki.data["date"].max())
 
-data_rki = data_rki.set_index(["IdLandkreis", "Altersgruppe", "date",])
-data_rki = data_rki.groupby(["IdLandkreis", "Altersgruppe", "date",]).sum()["confirmed"]
+data_rki = data_rki.set_index(
+    [
+        "IdLandkreis",
+        "Altersgruppe",
+        "date",
+    ]
+)
+data_rki = data_rki.groupby(
+    [
+        "IdLandkreis",
+        "Altersgruppe",
+        "date",
+    ]
+).sum()["confirmed"]
 data_rki = data_rki.groupby(level=[0, 1]).apply(
     lambda x: x.reset_index(level=[0, 1], drop=True).reindex(index)
 )
@@ -99,13 +113,16 @@ cases_7_day_sum = data_rki.rolling(7).sum()
     [IDLandkreis, [cases,incidenc]]
 """
 dates = pd.date_range(start=datetime.datetime(2020, 9, 7), end=date)
-for date in dates:
+for date in tqdm(dates):
     # We want to store the LAST number of weekly new cases
     data_cases = cases_7_day_sum.xs(date, level="date")
 
     data = {}
     for lk_id in data_cases.index.get_level_values(level="IdLandkreis").unique():
         data_lk = data_cases.xs(lk_id, level="IdLandkreis")
+
+        if lk_id == 5354:
+            continue
 
         # BERLIN
         berlin = [

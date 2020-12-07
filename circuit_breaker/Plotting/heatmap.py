@@ -2,7 +2,7 @@
 # @Author:        F. Paul Spitzner
 # @Email:         paul.spitzner@ds.mpg.de
 # @Created:       2020-11-14 17:15:43
-# @Last Modified: 2020-11-16 14:16:55
+# @Last Modified: 2020-11-16 16:20:36
 # ------------------------------------------------------------------------------ #
 import os
 import sys
@@ -126,7 +126,7 @@ if __name__ == "__main__":
     fig, ax = plt.subplots()
     levels = np.arange(-0.25, 9.75, 0.5)
     CS = ax.contourf(k, t, d, levels, cmap=cmap, origin="lower")
-    CS2 = ax.contour(CS, levels=[4, 8], colors=["white", "black"], origin="lower")
+    # CS2 = ax.contour(CS, levels=[4, 8], colors=["white", "black"], origin="lower")
     fig.tight_layout()
     plt.gca().set_axis_off()
     ax.axis("off")

@@ -49,14 +49,14 @@ def create_plot_scenarios(
     # Get rcParams
     rcParams = cov19.plot.rcParams
     figsize = (3, 6)
-    ylim_lam = [-0.1, 0.5]
+    ylim_lam = [-0.2, 0.2]
 
     label_y_new = f"Reported cases per million"
     label_y_cum = f"Total\nreported cases"
     if R_type == "R":
         label_y_lam = f"Reproduction number\n$R(t)$"
     else:
-        label_y_lam = f"Effective\n growth rate $\lambda^*(t)$"
+        label_y_lam = f"Daily\n growth rate $\lambda^*(t)$"
     label_leg_data = "Data"
     label_leg_dlim = f"Updated on\n{datetime.datetime.now().strftime('%Y/%m/%d')}"
 
@@ -67,7 +67,7 @@ def create_plot_scenarios(
         label_leg_data = "Daten"
         label_leg_dlim = f"Daten bis\n{model.data_end.strftime('%-d. %B %Y')}"
 
-    letter_kwargs = dict(x=-0.25, y=1, size="x-large")
+    letter_kwargs = dict(x=-0.35, y=1.1, size="x-large")
     # per default we assume no hierarchical
     if region is None:
         region = ...
@@ -124,37 +124,36 @@ def create_plot_scenarios(
     ax.set_ylabel(label_y_lam)
     ax.set_ylim(ylim_lam)
 
-    if not axes_provided:
-        ax.text(s=text_labels[0], transform=ax.transAxes, **letter_kwargs)
-        ax.hlines(0, x[0], x[-1], linestyles=":")
-        if annotate_constrained:
-            try:
-                # depending on hierchy delay has differnt variable names.
-                # get the shortest one. todo: needs to be change depending on region.
-                delay_vars = [var for var in trace.varnames if "delay" in var]
-                delay_var = delay_vars.sort(key=len)[0]
-                delay = mpl.dates.date2num(model.data_end) - np.percentile(
-                    trace[delay_var], q=75
-                )
-                ax.vlines(delay, -10, 10, linestyles="-", colors=color_annot)
-                ax.text(
-                    delay + 1.5,
-                    0.4,
-                    "unconstrained due\nto reporting delay",
-                    color=color_annot,
-                    horizontalalignment="left",
-                    verticalalignment="top",
-                )
-                ax.text(
-                    delay - 1.5,
-                    0.4,
-                    "constrained\nby data",
-                    color=color_annot,
-                    horizontalalignment="right",
-                    verticalalignment="top",
-                )
-            except Exception as e:
-                log.debug(f"{e}")
+    ax.text(s=text_labels[0], transform=ax.transAxes, **letter_kwargs)
+    ax.hlines(0, x[0], x[-1], linestyles=":")
+    if annotate_constrained:
+        try:
+            # depending on hierchy delay has differnt variable names.
+            # get the shortest one. todo: needs to be change depending on region.
+            delay_vars = [var for var in trace.varnames if "delay" in var]
+            delay_var = delay_vars.sort(key=len)[0]
+            delay = mpl.dates.date2num(model.data_end) - np.percentile(
+                trace[delay_var], q=75
+            )
+            ax.vlines(delay, -10, 10, linestyles="-", colors=color_annot)
+            ax.text(
+                delay + 1.5,
+                0.4,
+                "unconstrained due\nto reporting delay",
+                color=color_annot,
+                horizontalalignment="left",
+                verticalalignment="top",
+            )
+            ax.text(
+                delay - 1.5,
+                0.4,
+                "constrained\nby data",
+                color=color_annot,
+                horizontalalignment="right",
+                verticalalignment="top",
+            )
+        except Exception as e:
+            log.debug(f"{e}")
 
     # --------------------------------------------------------------------------- #
     # New cases, lin scale first
@@ -176,37 +175,32 @@ def create_plot_scenarios(
         * 1e6
     )[:, 0]
     x_data = pd.date_range(start=model.data_begin, end=model.data_end)
-
+    print(y_data)
     # data points and annotations, draw only once
-    if not axes_provided:
-        ax.text(s=text_labels[1], transform=ax.transAxes, **letter_kwargs)
-        cov19.plot._timeseries(
-            x=x_data,
-            y=y_data,
-            ax=ax,
-            what="data",
-            color=color_data,
-            zorder=9,
-            label=label_leg_data,
+    ax.text(s=text_labels[1], transform=ax.transAxes, **letter_kwargs)
+    cov19.plot._timeseries(
+        x=x_data,
+        y=y_data,
+        ax=ax,
+        what="data",
+        color=color_data,
+        zorder=9,
+        label=label_leg_data,
+    )
+    # model fit
+    cov19.plot._timeseries(
+        x=x_past,
+        y=y_past,
+        ax=ax,
+        what="model",
+        color=color_past,  # label="Fit",
+        zorder=10,
+    )
+    if add_more_later:
+        # dummy element to separate forecasts
+        ax.plot(
+            [], [], "-", linewidth=0, label=forecast_heading,
         )
-        # model fit
-        cov19.plot._timeseries(
-            x=x_past,
-            y=y_past,
-            ax=ax,
-            what="model",
-            color=color_past,  # label="Fit",
-            zorder=10,
-        )
-        if add_more_later:
-            # dummy element to separate forecasts
-            ax.plot(
-                [],
-                [],
-                "-",
-                linewidth=0,
-                label=forecast_heading,
-            )
 
     # model fcast
     y_fcast, x_fcast = cov19.plot._get_array_from_trace_via_date(
@@ -269,20 +263,12 @@ def create_plot_scenarios(
         )
         # model fit
         cov19.plot._timeseries(
-            x=x_past,
-            y=y_past,
-            ax=ax,
-            what="model",
-            color=color_past,  # label="Fit",
+            x=x_past, y=y_past, ax=ax, what="model", color=color_past,  # label="Fit",
         )
         if add_more_later:
             # dummy element to separate forecasts
             ax.plot(
-                [],
-                [],
-                "-",
-                linewidth=0,
-                label=forecast_heading,
+                [], [], "-", linewidth=0, label=forecast_heading,
             )
 
     # model fcast, needs to start one day later, too. use the end date we got before
