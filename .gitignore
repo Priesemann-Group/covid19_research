@@ -20,3 +20,6 @@ __pycache__/
 *.o
 
 circuit_breaker/Cpp_Implementation/data/*/
+
+incidence_landkreise/data/ts/*
+incidence_landkreise/figures/*/*.png
