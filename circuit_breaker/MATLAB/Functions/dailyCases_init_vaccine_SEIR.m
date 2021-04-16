@@ -32,7 +32,7 @@ chi         = exp(-tau/tc);
 
 tsr = Gamma/(Gamma+lambda_s+lambda_r);
 tr  = Gamma/(lambda_r+Gamma);
-teq = (lambda_r*(1-phi)*tr + phi*lambda_s*tsr)/(lambda_r+lambda_s*phi);
+teq = (lambda_r*((1-phi)*tr +phi*tsr)+ phi*lambda_s*tsr)/(lambda_r+lambda_s*phi);
 Hsinf = phi*nmax/(lambda_s*phi + lambda_r);
 Hinf = nmax/(lambda_s*phi + lambda_r);
 Ntest = lambda_r*min(H,Hinf)      + lambda_r2*max(0,H-Hinf)... 

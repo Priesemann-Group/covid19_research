@@ -34,7 +34,7 @@ xim         = 1-xi;
 
 tsr = Gamma/(Gamma+lambda_s+lambda_r);
 tr  = Gamma/(lambda_r+Gamma);
-lambda_eq = (lambda_r*(1-phi)*tr + phi*lambda_s*tsr)/(lambda_r+lambda_s*phi);
+lambda_eq = (lambda_r*((1-phi)*tr +phi*tsr)+ phi*lambda_s*tsr)/(lambda_r+lambda_s*phi);
 
 %% eq values
 
