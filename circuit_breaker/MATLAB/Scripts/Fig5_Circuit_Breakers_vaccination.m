@@ -19,15 +19,16 @@ D = 7;
 delay = 0;
 
 %% Default pre- and during-lockdown settings
-R0      = 3.3;
+R0      = 3.3;          
+R0_variant = 4.3;
 Rt      = 0.8*R0;
 Rtld    = 0.25*R0; 
-mode    = 0;          % [0 1] 1=TTI limit, 0=Hospital limit
+mode    = 1;          % [0 1] 1=TTI limit, 0=Hospital limit
 Thrs1   = 250;       % Hospital alarm threshold (in terms of cases)
 
 %% vaccine parameters
 uptake      = 0.7;
-kappa_eff   = 0.4; 
+kappa_eff   = 0.8; 
 %% Mild contact reduction
 Rtald   = 0.80*R0;  
 %% Moderate contact reduction
@@ -70,6 +71,8 @@ lambda_r2   = 0;
 xim = 1-xi;
 ktcrit = fzero(@(Rt) maxvpdde_lin(xi,tc,tau,nu,Rt,Gamma,lambda_s,lambda_r,eta,epsilon,R0),2)/R0;
 ktcrit_Hosp = fzero(@(Rt) maxvpdde_lin(xi,tc,tau,nu,Rt,Gamma,lambda_s2,lambda_r2,0,epsilon,R0),2)/R0;
+ktcrit_variant = fzero(@(Rt) maxvpdde_lin(xi,tc,tau,nu,Rt,Gamma,lambda_s,lambda_r,eta,epsilon,R0_variant),2)/R0_variant;
+ktcrit_Hosp_variant = fzero(@(Rt) maxvpdde_lin(xi,tc,tau,nu,Rt,Gamma,lambda_s2,lambda_r2,0,epsilon,R0_variant),2)/R0_variant;
 %% Initial condition
 
 % x0 = [S ET EH T H Hs R]
@@ -196,8 +199,12 @@ ax = backplot('Daily new cases');
 if mode == 0
     plot(Tdis/7,ktcrit_Hosp./(1-Imm_frac),lt,'Color',or2,'LineWidth',3*fact_curva)
     hold on
+    plot(Tdis/7,ktcrit_Hosp_variant./(1-Imm_frac),ls,'Color',or2,'LineWidth',3*fact_curva)
+    hold on
 else
     plot(Tdis/7,ktcrit./(1-Imm_frac),lt,'Color',bl2,'LineWidth',3*fact_curva)
+    hold on
+    plot(Tdis/7,ktcrit_variant./(1-Imm_frac),ls,'Color',bl2,'LineWidth',3*fact_curva)
     hold on
 end
 plot(Tdis/7,Rtald*ones(size(Tdis))/R0,lt,'Color',red1,'LineWidth',1.5*fact_curva)
