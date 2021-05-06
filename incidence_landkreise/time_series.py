@@ -17,14 +17,15 @@ from tqdm.auto import tqdm
 
 # Load data with cov19npis module
 rki = cov19.data_retrieval.RKI()
-rki.download_all_available_data(force_download=True)
+rki.download_all_available_data(force_download=False)
 
 
 # Load population data
 population = pd.read_csv(
-    "./data/population_landkreise_altersgruppen.csv",
-    encoding="cp1252",
+    "./data/population_rki_age_groups.csv", encoding="cp1252",
 )
+
+
 # FORMAT BS Should not be neccesary anymore:
 """
 population = population.dropna()
@@ -42,43 +43,12 @@ for col in population.columns:
     population[col] = population[col].astype(int)
 """
 
-population = population.set_index(["ags", "region", "typ"])
+pop_rki_aligned = population.set_index(["ags", "Region", "NUTS3"])
 
 # Raw geo_file
 with open("./data/population_landkreise.json") as json_file:
     population_landkreise = ujson.load(json_file)
 
-
-""" # Maniuplate data
-"""
-
-# Get the same age groups as for the rki database:
-pop_rki_aligned = pd.DataFrame()
-
-pop_rki_aligned["A00-A04"] = (
-    population["unter 3 Jahre"] + population["3 bis unter 6 Jahre"]
-)
-pop_rki_aligned["A05-A14"] = (
-    population["6 bis unter 10 Jahre"] + population["10 bis unter 15 Jahre"]
-)
-pop_rki_aligned["A15-A34"] = (
-    population["15 bis unter 18 Jahre"]
-    + population["18 bis unter 20 Jahre"]
-    + population["20 bis unter 25 Jahre"]
-    + population["25 bis unter 30 Jahre"]
-    + population["30 bis unter 35 Jahre"]
-)
-pop_rki_aligned["A35-A59"] = (
-    population["35 bis unter 40 Jahre"]
-    + population["40 bis unter 45 Jahre"]
-    + population["45 bis unter 50 Jahre"]
-    + population["50 bis unter 55 Jahre"]
-    + population["55 bis unter 60 Jahre"]
-)  # Ratio in population
-pop_rki_aligned["A60-A79"] = (
-    population["60 bis unter 65 Jahre"] + population["65 bis unter 75 Jahre"]
-)
-pop_rki_aligned["A80+"] = population["75 Jahre und mehr"]
 pop_rki_aligned["unbekannt"] = pop_rki_aligned.sum(axis=1) * 0.01  # 1% not known
 
 # New cases with rolling 7 day sum:
@@ -186,5 +156,5 @@ for date in tqdm(dates):
                     )
                 )
     # Write file
-    with open(f"./data/ts/data_{date.strftime('%d_%m')}.json", "w") as outfile:
+    with open(f"./data/ts/data_{date.strftime('%Y_%m_%d')}.json", "w") as outfile:
         ujson.dump(data, outfile)
