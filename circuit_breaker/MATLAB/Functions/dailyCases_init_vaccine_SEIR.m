@@ -17,9 +17,11 @@ t=ts;
 % el problema aqu? lo da la no uniformidad del tiempo
 Htlag = H(1)*ones(size(H));
 Hslag = Hs(1)*ones(size(Hs));
+Slag = S(1)*ones(size(S));
 idx = t>=t(1)+tau;
 Htlag(idx) = H(1:length(Htlag(idx)));
 Hslag(idx) = Hs(1:length(Hslag(idx)));
+Slag (idx) = S(1:length(Slag(idx)));
 
 %% Tracing and other pre-solver quantities
 
@@ -48,13 +50,13 @@ for i = 1:length(t)
 %     nm          = min([nmax (Htlag(i)*lambda_r+Hslag(i)*lambda_s)]);
     Rt_del = Rt_t(Rt,Rtld,Rtald,t(i)-tau,t1,t2,D);
     if Ntest(i) >= nmax %nm == nmax
-        ne(i) = eta*Rt_del*teq*nmax;
+        ne(i) = eta*Rt_del*teq*nmax*Slag(i)/M;
         if flag
             iNcrit = i;
             flag = 0;
         end
     else
-        ne(i) = eta*Rt_del*(Htlag(i)*tr*lambda_r+Hslag(i)*(tsr*lambda_s+(tsr-tr)*lambda_r));
+        ne(i) = eta*Rt_del*(Htlag(i)*tr*lambda_r+Hslag(i)*(tsr*lambda_s+(tsr-tr)*lambda_r))*Slag(i)/M;
     end
 end
 

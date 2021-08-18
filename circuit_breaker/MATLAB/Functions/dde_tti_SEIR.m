@@ -9,7 +9,7 @@ function F = dde_tti_SEIR(t,x,Z,M,xi,tc,tau,nu,Rt,Gamma,lambda_s,lambda_r,eta,ep
 S = x(1); ET  = x(2); EH = x(3); T = x(4); H = x(5); Hs = x(6);
 Htlag = Z(5);
 Hslag = Z(6);
-
+Slag = Z(1);   
 %% Tracing and other pre-solver quantities
 
 tol         = 1e-5;
@@ -36,9 +36,9 @@ Ntest_s = lambda_r*min(Hs,Hsinf)    + lambda_r2*max(0,Hs-Hsinf) + ...
 %% correction for tracing capacity (i guess)
 
 if Ntest >= nmax
-    ne = eta*Rt_del*(lambda_eq)*nmax;
+    ne = eta*Rt_del*(lambda_eq)*nmax*Slag/M;
 else
-    ne = eta*Rt_del*(Htlag*tr*lambda_r+Hslag*(tsr*lambda_s+(tsr-tr)*lambda_r));
+    ne = eta*Rt_del*(Htlag*tr*lambda_r+Hslag*(tsr*lambda_s+(tsr-tr)*lambda_r))*Slag/M;
 end
 
 chi         = exp(-tau/tc);
