@@ -28,7 +28,7 @@ Thrs1   = 250;       % Hospital alarm threshold (in terms of cases)
 
 %% vaccine parameters
 uptake      = 0.7;
-kappa_eff   = 0.8; 
+kappa_eff   = 0.4; 
 %% Mild contact reduction
 Rtald   = 0.80*R0;  
 %% Moderate contact reduction
@@ -115,7 +115,7 @@ tau2        = 150;
 t_end       = t_start + tau1; 
 t_ref       = t_start + tau2;
 b           = -0.025;
-a           = uptake*b*M/log((1+exp(-b*tau2))/(exp(-b*tau1)+exp(-b*tau2)))
+a           = uptake*b*M/log((1+exp(-b*tau2))/(exp(-b*tau1)+exp(-b*tau2)));
 V           = [t_start;t_end;kappa_eff;a;b;t_ref];
 
 while flag

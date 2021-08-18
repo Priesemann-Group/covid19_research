@@ -4,8 +4,14 @@ clear all
 close all
 clc
 
+%% Parameters equilibrium
+R0          = 3.3;   % use R0 = 4.3 for B.1.1.7
+Neq         = 10;
+Neq_hosp    = 250;
+uptake      = 0.7;
+kappa_eff   = 0.4; 
+
 %% Parameters 
-R0          = 3.3;
 M           = 1e6;          % Total population
 I0          = M*200/1e6;    % initial infections
 xi          = 0.32;         % Asymptomatic ratio
@@ -26,17 +32,10 @@ lambda_s2   = 0.1;
 lambda_r2   = 0;
 xim = 1-xi;
 
-%% Parameters equilibrium
-
-Neq         = 10;
-Neq_hosp    = 250;
-uptake      = 0.7;
-kappa_eff   = 0.4; 
-
 %% Critical hidden reproduction number
 
 Rtcrit      = fzero(@(Rt) maxvpdde_lin(xi,tc,tau,nu,Rt,Gamma,lambda_s,lambda_r,eta,epsilon,R0),2)
-Rtcrit_hosp      = fzero(@(Rt) maxvpdde_lin(xi,tc,tau,nu,Rt,Gamma,lambda_s2,lambda_r2,0,epsilon,R0),2)
+Rtcrit_hosp = fzero(@(Rt) maxvpdde_lin(xi,tc,tau,nu,Rt,Gamma,lambda_s2,lambda_r2,0,epsilon,R0),2)
 
 %% estimation of the time for the vaccine roll-out
 
@@ -51,8 +50,8 @@ a           = uptake*b*M/log((1+exp(-b*tau2))/(exp(-b*tau1)+exp(-b*tau2)));
 V           = [t_start;t_end;kappa_eff;a;b;t_ref];
 f           = kappa_eff*acumula(t,dvacdt(t,V))/(M*V(3));
 
-RtH =   Rtcrit./(1-f) - Phi0/Neq;
-RtH_hosp =   Rtcrit_hosp./(1-f) - Phi0/Neq_hosp;
+RtH =   Rtcrit./(1-f) - Phi0/Neq * R0;
+RtH_hosp =   Rtcrit_hosp./(1-f) - Phi0/Neq_hosp * R0;
 
 %% Plot
 load('DefColors.mat')
